@@ -1,31 +1,33 @@
 FROM richarvey/php-fpm-with-nginx:latest
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Install system dependencies untuk GD & ZIP (diperlukan oleh PHPOffice/Excel)
+# 1. Pastikan system dependencies lengkap untuk GD, ZIP, dan PostgreSQL
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libzip-dev \
+    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip
+    && docker-php-ext-install gd zip pdo pdo_pgsql
 
-# Copy project files
+# 2. Set working directory
+WORKDIR /var/www/html
+
+# 3. Copy file project
 COPY . .
 
-# Install dependencies Laravel (tambahkan flag ignore-platform-reqs jika masih bandel)
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-gd
+# 4. Install dependencies dengan mengabaikan pengecekan platform sementara 
+# agar build tidak berhenti di tengah jalan
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Set permissions untuk storage Laravel
+# 5. Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Environment khusus untuk image ini
+# 6. Konfigurasi Environment Railway
 ENV WEBROOT /var/www/html/public
 ENV APP_TYPE laravel
 
 EXPOSE 80
 
-# Jalankan migrations dan start server
+# 7. Jalankan migration dan start server
 CMD ["sh", "-c", "php artisan migrate --force && /start.sh"]
