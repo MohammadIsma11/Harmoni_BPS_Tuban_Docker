@@ -1,25 +1,22 @@
-FROM php:8.2-cli
+FROM richarvey/php-fpm-with-nginx:latest
 
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    zip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql zip
+# Set working directory
+WORKDIR /var/www/html
 
-WORKDIR /var/www
-
+# Copy project files
 COPY . .
 
-# install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install dependencies Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-RUN composer install --no-interaction --optimize-autoloader
+# Set permissions untuk storage Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 8000
+# Environment khusus untuk image ini agar root folder mengarah ke /public
+ENV WEBROOT /var/www/html/public
+ENV APP_TYPE laravel
 
-CMD php artisan serve --host=0.0.0.0 --port=8000
+EXPOSE 80
+
+# Jalankan migrations otomatis saat startup (Opsional)
+CMD ["sh", "-c", "php artisan migrate --force && /start.sh"]
