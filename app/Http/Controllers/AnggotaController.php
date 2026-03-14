@@ -67,21 +67,30 @@ class AnggotaController extends Controller
     public function anggotaUpdate(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'username'     => 'required|string|max:50|unique:users,username,' . $user->id,
-            'role'         => 'required',
+            'role'         => 'required|in:Admin,Kepala,Katim,Pegawai', // Pastikan input sesuai enum
             'team_id'      => 'nullable|exists:teams,id',
             'password'     => 'nullable|min:6',
         ]);
 
         $data = $request->only(['nama_lengkap', 'username', 'role', 'team_id']);
+
+        // Logika tambahan: Jika role Admin, paksa team_id jadi null
+        if ($data['role'] === 'Admin') {
+            $data['team_id'] = null;
+        }
+
+        // Hanya update password jika diisi
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
         $user->update($data);
-        return redirect()->route('manajemen.anggota')->with('success', 'Data anggota diperbarui!');
+
+        return redirect()->route('manajemen.anggota')->with('success', 'Data anggota berhasil diperbarui!');
     }
 
     public function anggotaDestroy($id)

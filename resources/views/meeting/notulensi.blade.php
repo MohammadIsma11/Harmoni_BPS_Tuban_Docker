@@ -7,162 +7,187 @@
     @endphp
 
     {{-- Header --}}
-    <div class="d-flex align-items-center mb-4">
+    <div class="d-flex align-items-center mb-4 mt-4">
         <div class="bg-warning bg-opacity-10 p-3 rounded-4 me-3 text-warning">
             <i class="fas {{ $isEdit ? 'fa-edit' : 'fa-file-signature' }} fa-lg"></i>
         </div>
         <div>
-            <h4 class="fw-bold mb-0">{{ $isEdit ? 'Edit Notulensi Rapat' : 'Input Hasil Rapat (Notulensi)' }}</h4>
-            <p class="text-muted small mb-0">Silakan {{ $isEdit ? 'perbarui' : 'lengkapi' }} poin pembahasan dan dokumentasi rapat.</p>
+            <h4 class="fw-bold mb-0">{{ $isEdit ? 'Edit Hasil Rapat' : 'Input Hasil Rapat (Upload File)' }}</h4>
+            <p class="text-muted small mb-0">Unggah dokumen notulensi, materi pendukung, dan foto dokumentasi.</p>
         </div>
     </div>
 
-    <form action="{{ $isEdit ? route('meeting.notulensi.update', $meeting->id) : route('meeting.notulensi.store', $meeting->id) }}" 
+    <form id="formNotulensi" action="{{ $isEdit ? route('meeting.notulensi.update', $meeting->id) : route('meeting.notulensi.store', $meeting->id) }}" 
           method="POST" enctype="multipart/form-data">
         @csrf
         @if($isEdit) @method('PUT') @endif
 
         <div class="row">
-            {{-- KIRI: FORM NOTULENSI --}}
+            {{-- KIRI: UPLOAD NOTULENSI UTAMA --}}
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                            <h6 class="fw-bold text-dark mb-0">Detail Pembahasan</h6>
-                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">Agenda: {{ $meeting->title }}</span>
-                        </div>
-                        
-                        {{-- SEKSI PIMPINAN --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-body p-5 text-center">
                         <div class="mb-4">
-                            <label class="small fw-bold mb-2 text-dark">Pimpinan Rapat</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 rounded-start-3">
-                                    <i class="fas fa-user-tie text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control bg-light border-start-0 fw-bold rounded-end-3" 
-                                    value="{{ $meeting->creator->nama_lengkap ?? 'Admin' }}" readonly>
-                            </div>
+                            <i class="fas fa-file-invoice text-primary opacity-25" style="font-size: 5rem;"></i>
                         </div>
-
-                        {{-- SEKSI HASIL RAPAT --}}
-                        <div class="mb-3">
-                            <label class="small fw-bold mb-2 text-primary">Isi Notulensi / Poin Pembahasan</label>
-                            <textarea name="hasil_rapat" class="form-control rounded-4 @error('hasil_rapat') is-invalid @enderror" rows="18" 
-                                placeholder="Tuliskan hasil diskusi, keputusan rapat, dan rencana tindak lanjut di sini..." 
-                                required style="resize: none; line-height: 1.6;">{{ old('hasil_rapat', $meeting->notulensi_hasil) }}</textarea>
-                            @error('hasil_rapat') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- KANAN: DOKUMENTASI & PESERTA --}}
-            <div class="col-lg-4">
-                {{-- CARD UPLOAD FOTO --}}
-                <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-body p-4 text-dark">
-                        <h6 class="fw-bold mb-3">Dokumentasi Rapat</h6>
+                        <h5 class="fw-bold text-dark">Dokumen Notulensi Rapat</h5>
+                        <p class="text-muted small px-md-5">Unggah file hasil rapat yang telah disusun. Sistem menerima format PDF, Word, atau Text.</p>
                         
-                        {{-- Foto Lama (Jika Mode Edit) --}}
-                        @if($isEdit && $meeting->dokumentasi_path)
-                            <div class="mb-3 p-2 bg-light rounded-3 border">
-                                <label class="small text-muted d-block mb-2 fw-bold">Foto Tersimpan:</label>
-                                <div class="row g-2">
-                                    @php $photos = json_decode($meeting->dokumentasi_path, true) ?? []; @endphp
-                                    @foreach($photos as $photo)
-                                        <div class="col-4">
-                                            <img src="{{ asset('storage/' . $photo) }}" class="img-fluid rounded-2 border shadow-xs" style="height: 60px; width: 100%; object-fit: cover;">
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <small class="text-danger mt-2 d-block" style="font-size: 0.6rem;">* Upload foto baru akan mengganti semua foto lama.</small>
+                        <div class="mx-auto" style="max-width: 400px;">
+                            <input type="file" name="hasil_rapat_file" id="hasil_rapat_file" 
+                                   class="form-control rounded-pill border-primary border-dashed p-3 @error('hasil_rapat_file') is-invalid @enderror" 
+                                   accept=".pdf,.doc,.docx,.txt" {{ $isEdit ? '' : 'required' }}>
+                            @error('hasil_rapat_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        @if($isEdit && $meeting->notulensi_hasil)
+                            <div class="mt-4 p-3 bg-light rounded-4 d-inline-flex align-items-center border">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span class="small fw-bold text-muted">File Notulensi Tersimpan: </span>
+                                <a href="{{ asset('storage/' . $meeting->notulensi_hasil) }}" target="_blank" class="ms-2 badge bg-primary text-decoration-none">Lihat Dokumen</a>
                             </div>
                         @endif
-
-                        <div class="mb-3">
-                            <label class="small fw-bold mb-2 text-danger">Unggah Foto Baru {{ $isEdit ? '(Opsional)' : '(Wajib)' }}</label>
-                            <input type="file" name="foto_dokumentasi[]" id="foto_dokumentasi" class="form-control rounded-3" 
-                                accept="image/*" multiple {{ $isEdit ? '' : 'required' }}>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted fw-bold">Batas ukuran file: 20MB</small>
                         </div>
-                        {{-- Container Preview --}}
-                        <div id="image-preview-container" class="row g-2 mt-2"></div>
                     </div>
                 </div>
 
-                {{-- CARD DAFTAR HADIR --}}
-                <div class="card border-0 shadow-sm rounded-4 mb-4 text-dark">
-                    <div class="card-body p-4">
+                {{-- INFO PESERTA --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-4 border-success">
+                    <div class="card-body p-4 text-dark">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0 small text-uppercase" style="letter-spacing: 1px;">Konfirmasi Kehadiran</h6>
-                            <span class="badge bg-success rounded-pill px-2" style="font-size: 0.6rem;">
-                                {{ count($userSudahHadir) }} Hadir
-                            </span>
+                            <h6 class="fw-bold mb-0 small text-uppercase" style="letter-spacing: 1px;">Status Kehadiran Peserta</h6>
+                            <span class="badge bg-success rounded-pill px-3">{{ count($userSudahHadir) }} Hadir</span>
                         </div>
-                        
-                        <div class="list-group list-group-flush overflow-auto pe-1" style="max-height: 250px;">
+                        <div class="row g-2">
                             @foreach($semuaPeserta as $p)
                                 @php $isHadir = in_array($p->assigned_to, $userSudahHadir); @endphp
-                                <div class="list-group-item px-0 py-2 border-0 d-flex align-items-center {{ $isHadir ? '' : 'opacity-50' }}">
-                                    <div class="avatar-mini {{ $isHadir ? 'bg-success text-white' : 'bg-light text-muted border' }} rounded-circle me-2">
-                                        {{ strtoupper(substr($p->assignee->nama_lengkap, 0, 1)) }}
+                                <div class="col-md-4">
+                                    <div class="p-2 border rounded-3 d-flex align-items-center {{ $isHadir ? 'bg-white' : 'bg-light opacity-50' }}">
+                                        <i class="fas {{ $isHadir ? 'fa-check-circle text-success' : 'fa-clock text-muted' }} me-2"></i>
+                                        <span class="small text-truncate fw-bold" title="{{ $p->assignee->nama_lengkap }}">{{ $p->assignee->nama_lengkap }}</span>
                                     </div>
-                                    <div class="small flex-grow-1 text-truncate pe-2">
-                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.75rem;">{{ $p->assignee->nama_lengkap }}</div>
-                                        <small class="text-muted" style="font-size: 0.6rem;">{{ $isHadir ? 'Terverifikasi' : 'Tidak Hadir' }}</small>
-                                    </div>
-                                    <i class="fas {{ $isHadir ? 'fa-check-circle text-success' : 'fa-times-circle text-muted' }}" style="font-size: 0.8rem;"></i>
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {{-- KANAN: DOKUMEN LAIN --}}
+            <div class="col-lg-4">
+                {{-- MATERI --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4 text-dark">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-file-powerpoint me-2 text-warning"></i>Materi Rapat</h6>
+                        <input type="file" name="materi_path" id="materi_path" class="form-control rounded-3" accept=".pdf,.pptx,.ppt">
+                        <small class="text-muted d-block mt-1" style="font-size: 0.65rem;">Max: 20MB (PDF/PPTX)</small>
+                    </div>
+                </div>
+
+                {{-- FOTO DOKUMENTASI --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4 text-dark">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-images me-2 text-danger"></i>Foto Dokumentasi</h6>
+                        <input type="file" name="foto_dokumentasi[]" id="foto_dokumentasi" class="form-control rounded-3" accept="image/*" multiple {{ $isEdit ? '' : 'required' }}>
+                        <div id="image-preview-container" class="row g-2 mt-2"></div>
+                        <small class="text-muted d-block mt-2" style="font-size: 0.65rem;">Maksimal 20MB per foto.</small>
+                    </div>
+                </div>
 
                 {{-- TOMBOL SUBMIT --}}
-                <div class="mb-4">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow btn-hover-effect border-0">
-                        <i class="fas {{ $isEdit ? 'fa-save' : 'fa-check-double' }} me-2"></i> {{ $isEdit ? 'Simpan Perubahan' : 'Selesaikan Notulensi' }}
-                    </button>
-                    <a href="{{ route('meeting.history') }}" class="btn btn-link w-100 text-muted mt-2 small text-decoration-none">Batal dan Kembali</a>
-                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg border-0 mb-3">
+                    <i class="fas {{ $isEdit ? 'fa-save' : 'fa-cloud-upload-alt' }} me-2"></i> 
+                    {{ $isEdit ? 'Simpan Perubahan' : 'Upload Notulensi' }}
+                </button>
+
+                {{-- TOMBOL BATAL (DINAMIS) --}}
+                <a href="{{ $isEdit ? route('meeting.history') : route('meeting.index') }}" 
+                class="btn btn-light w-100 rounded-pill py-2 text-muted fw-bold">
+                    <i class="fas fa-times me-1"></i> Batal
+                </a>
             </div>
         </div>
     </form>
 </div>
 
 <style>
-    .avatar-mini { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; }
-    .preview-img-wrapper { position: relative; height: 80px; width: 100%; overflow: hidden; border-radius: 10px; border: 2px solid #f1f5f9; }
+    .preview-img-wrapper { height: 70px; width: 100%; overflow: hidden; border-radius: 10px; border: 2px solid #f1f5f9; }
     .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
     .btn-primary { background: linear-gradient(135deg, #0058a8 0%, #007bff 100%); transition: all 0.3s ease; }
-    .btn-hover-effect:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 88, 168, 0.2) !important; filter: brightness(1.1); }
-    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    /* Scrollbar Tipis */
-    .list-group::-webkit-scrollbar { width: 3px; }
-    .list-group::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 88, 168, 0.3) !important; }
+    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
 </style>
 
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function previewImages() {
-        const previewContainer = document.querySelector('#image-preview-container');
-        previewContainer.innerHTML = ''; 
-        
-        if (this.files) {
+    const form = document.querySelector('#formNotulensi');
+    
+    // Fungsi Validasi Ukuran File (Sekarang Global 20MB)
+    function validateSize(input, maxSizeMB, typeName) {
+        const files = Array.from(input.files);
+        const maxSize = maxSizeMB * 1024 * 1024;
+        let oversized = [];
+
+        files.forEach(file => {
+            if (file.size > maxSize) oversized.push(file.name);
+        });
+
+        if (oversized.length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File ' + typeName + ' Kebesaran',
+                html: `Batas maksimal adalah ${maxSizeMB}MB.<br><small class="text-danger">${oversized.join(', ')}</small>`,
+                confirmButtonColor: '#0058a8'
+            });
+            input.value = ''; // Reset
+            return false;
+        }
+        return true;
+    }
+
+    // Listener Notulensi Utama (Diubah ke 20MB)
+    document.querySelector('#hasil_rapat_file').addEventListener('change', function() {
+        validateSize(this, 20, 'Notulensi');
+    });
+
+    // Listener Materi (20MB)
+    document.querySelector('#materi_path').addEventListener('change', function() {
+        validateSize(this, 20, 'Materi');
+    });
+
+    // Listener Foto Dokumentasi (Diubah ke 20MB) & Preview
+    document.querySelector('#foto_dokumentasi').addEventListener('change', function() {
+        if(validateSize(this, 20, 'Foto')) {
+            const previewContainer = document.querySelector('#image-preview-container');
+            previewContainer.innerHTML = '';
             Array.from(this.files).forEach(file => {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     const col = document.createElement('div');
-                    col.className = 'col-4';
-                    col.innerHTML = `
-                        <div class="preview-img-wrapper shadow-sm">
-                            <img src="${e.target.result}">
-                        </div>
-                    `;
+                    col.className = 'col-3';
+                    col.innerHTML = `<div class="preview-img-wrapper"><img src="${e.target.result}"></div>`;
                     previewContainer.appendChild(col);
-                }
+                };
                 reader.readAsDataURL(file);
             });
         }
-    }
-    document.querySelector('#foto_dokumentasi').addEventListener('change', previewImages);
+    });
+
+    // Loading saat submit
+    form.addEventListener('submit', function() {
+        if (this.checkValidity()) {
+            Swal.fire({
+                title: 'Mengunggah Laporan...',
+                text: 'Mohon tunggu sebentar, file sedang diproses.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+        }
+    });
 </script>
 @endsection

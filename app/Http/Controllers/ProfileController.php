@@ -17,30 +17,41 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
 
-        $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'username'     => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role'         => ['required', Rule::in(['Pegawai', 'Katim'])], // Admin tidak boleh ubah role sendiri ke bawah via sini
-            'password'     => 'nullable|min:8|confirmed',
-        ]);
+    // 1. Tentukan Role yang diizinkan (Validation Logic)
+    $allowedRoles = [$user->role]; // Default: hanya boleh role dirinya sendiri
 
-        $user->nama_lengkap = $request->nama_lengkap;
-        $user->username = $request->username;
-        
-        // Logika Ganti Role: Hanya jika bukan Admin (Admin biarlah tetap Admin)
-        if ($user->role != 'Admin') {
-            $user->role = $request->role;
-        }
+    if ($user->role === 'Kepala') {
+        $allowedRoles = ['Kepala', 'Pegawai'];
+    } elseif ($user->role === 'Katim') {
+        $allowedRoles = ['Katim', 'Pegawai'];
+    } 
+    // Jika role === 'Pegawai', $allowedRoles tetap hanya ['Pegawai']
 
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
+    $request->validate([
+        'nama_lengkap' => 'required|string|max:255',
+        'username'     => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
+        'role'         => ['required', Rule::in($allowedRoles)],
+        'password'     => 'nullable|min:8|confirmed',
+    ]);
 
-        $user->save();
-
-        return back()->with('success', 'Profil dan peran berhasil diperbarui!');
+    $user->nama_lengkap = $request->nama_lengkap;
+    $user->username = $request->username;
+    
+    // 2. Update Role hanya jika user bukan Admin
+    if ($user->role !== 'Admin') {
+        $user->role = $request->role;
     }
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+
+    return back()->with('success', 'Profil berhasil diperbarui!');
+}
 }

@@ -5,7 +5,7 @@
     /* 1. Paksa Container tetap di dalam layar */
     .container-fluid {
         max-width: 100%;
-        overflow-x: hidden; /* Hilangkan scroll samping di body */
+        overflow-x: hidden;
     }
 
     .card-members {
@@ -19,13 +19,13 @@
     .table-responsive {
         border: none;
         margin: 0;
-        overflow-x: auto; /* Scroll hanya muncul di dalam tabel jika sangat sempit */
+        overflow-x: auto;
     }
 
     .table-members {
         width: 100%;
         margin-bottom: 0;
-        table-layout: fixed; /* Rahasia agar kolom tidak melar sendiri */
+        table-layout: fixed;
     }
 
     .table-members thead th {
@@ -51,9 +51,9 @@
         padding: 12px 10px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
-        white-space: nowrap; /* Cegah teks turun ke bawah */
+        white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* Kalau kepanjangan jadi titik-titik (...) */
+        text-overflow: ellipsis;
     }
 
     /* 4. Avatar & Badges */
@@ -101,7 +101,7 @@
     .btn-mini:hover { transform: scale(1.1); }
 
     @media (max-width: 768px) {
-        .table-members { table-layout: auto; } /* Biar fleksibel di HP */
+        .table-members { table-layout: auto; }
     }
 </style>
 
@@ -119,9 +119,13 @@
                         <input type="text" name="search" class="form-control form-control-sm rounded-pill px-3" 
                                placeholder="Cari..." value="{{ request('search') }}" style="width: 180px;">
                     </form>
+                    
+                    {{-- HANYA ADMIN YANG BISA TAMBAH --}}
+                    @if(Auth::user()->role == 'Admin')
                     <a href="{{ route('manajemen.anggota.create') }}" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
-                        <i class="fas fa-plus me-1"></i> Tambah
+                        <i class="fas fa-plus me-1"></i> Tambah Anggota
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -135,7 +139,10 @@
                             <th class="text-center col-role">Role</th>
                             <th class="text-center col-tim">Tim</th>
                             <th class="text-center col-tgl">Bergabung</th>
+                            {{-- KOLOM AKSI HANYA UNTUK ADMIN --}}
+                            @if(Auth::user()->role == 'Admin')
                             <th class="text-center pe-4 col-aksi">Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -153,6 +160,8 @@
                             <td class="text-center">
                                 @if($a->role == 'Admin')
                                     <span class="role-badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10">Admin</span>
+                                @elseif($a->role == 'Kepala')
+                                    <span class="role-badge bg-dark bg-opacity-10 text-dark border border-dark border-opacity-10">Kepala</span>
                                 @elseif($a->role == 'Katim')
                                     <span class="role-badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">Katim</span>
                                 @else
@@ -165,6 +174,9 @@
                             <td class="text-center text-muted small">
                                 {{ \Carbon\Carbon::parse($a->created_at)->format('d/m/y') }}
                             </td>
+                            
+                            {{-- AKSI HANYA UNTUK ADMIN --}}
+                            @if(Auth::user()->role == 'Admin')
                             <td class="pe-4 text-center">
                                 <div class="btn-action-group">
                                     <a href="{{ route('manajemen.anggota.edit', $a->id) }}" class="btn-mini btn-edit" title="Edit">
@@ -178,10 +190,16 @@
                                     </form>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">Data Kosong</td>
+                            <td colspan="{{ Auth::user()->role == 'Admin' ? 6 : 5 }}" class="text-center py-5 text-muted">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-user-slash fa-3x mb-3 opacity-20"></i>
+                                    <span>Tidak ada data anggota ditemukan.</span>
+                                </div>
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -196,18 +214,30 @@
     </div>
 </div>
 
+@if(Auth::user()->role == 'Admin')
 <script>
     function confirmDelete(id, name) {
         Swal.fire({
-            title: 'Hapus?',
-            text: name + " akan dihapus.",
+            title: 'Hapus Anggota?',
+            text: name + " akan dihapus secara permanen dari sistem.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
-            confirmButtonText: 'Ya, Hapus'
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-4',
+                confirmButton: 'rounded-pill px-4',
+                cancelButton: 'rounded-pill px-4'
+            }
         }).then((result) => {
-            if (result.isConfirmed) document.getElementById('del-' + id).submit();
+            if (result.isConfirmed) {
+                document.getElementById('del-' + id).submit();
+            }
         });
     }
 </script>
+@endif
+
 @endsection

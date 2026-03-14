@@ -9,17 +9,30 @@ class Team extends Model
 {
     use HasFactory;
 
-    /**
-     * Karena di Migration tadi kita pakai $table->timestamps(),
-     * maka property $timestamps tidak perlu diset false. 
-     * Laravel akan otomatis mengisinya.
-     */
     protected $fillable = ['nama_tim'];
 
     /**
-     * Relasi ke User (Satu tim punya banyak pegawai)
+     * Relasi ke Agenda (Tugas yang dibuat oleh anggota tim ini)
      */
-    public function users()
+    public function agendas()
+    {
+        // Menghubungkan Team -> User (Creator) -> Agenda
+        // Jika di tabel agendas ada kolom user_id yang merujuk ke tabel users, 
+        // dan di tabel users ada team_id yang merujuk ke tabel teams.
+        return $this->hasManyThrough(
+            Agenda::class, 
+            User::class, 
+            'team_id', // Foreign key di tabel users
+            'user_id', // Foreign key di tabel agendas
+            'id',      // Local key di tabel teams
+            'id'       // Local key di tabel users
+        );
+    }
+
+    /**
+     * Relasi ke User (Anggota Tim)
+     */
+    public function members()
     {
         return $this->hasMany(User::class, 'team_id');
     }

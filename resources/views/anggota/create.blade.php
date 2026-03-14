@@ -23,8 +23,8 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label small fw-bold text-muted">NAMA LENGKAP *</label>
-                                <input type="text" name="nama_lengkap" class="form-control rounded-3 bg-light border-0 @error('nama_lengkap') is-invalid @enderror" placeholder="Masukkan nama lengkap beserta gelar" required value="{{ old('nama_lengkap') }}">
-                                @error('nama_lengkap') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <input type="text" name="nama_lengkap" class="form-control rounded-3 bg-light border-0 @error('nama_lengkap') is-invalid @enderror" placeholder="Contoh: Budi Santoso, S.E." required value="{{ old('nama_lengkap') }}">
+                                @error('nama_lengkap') <div class="invalid-feedback fw-bold">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -33,23 +33,25 @@
                                     <span class="input-group-text bg-light border-0 text-muted">@</span>
                                     <input type="text" name="username" class="form-control rounded-3 bg-light border-0 @error('username') is-invalid @enderror" placeholder="username_bps" required value="{{ old('username') }}">
                                 </div>
-                                @error('username') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('username') <div class="text-danger small mt-1 fw-bold">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold text-muted">PASSWORD *</label>
                                 <input type="password" name="password" class="form-control rounded-3 bg-light border-0 @error('password') is-invalid @enderror" placeholder="Minimal 6 karakter" required>
-                                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                @error('password') <div class="invalid-feedback fw-bold">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label small fw-bold text-muted">ROLE / JABATAN *</label>
-                                <select name="role" class="form-select rounded-3 bg-light border-0" required>
+                                <select name="role" class="form-select rounded-3 bg-light border-0 @error('role') is-invalid @enderror" required>
                                     <option value="" selected disabled>Pilih Role</option>
-                                    <option value="Pegawai">Anggota / Pencacah</option>
-                                    <option value="Katim">Ketua Tim (Katim)</option>
-                                    <option value="Admin">Administrator</option>
+                                    <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin (Tim IT)</option>
+                                    <option value="Kepala" {{ old('role') == 'Kepala' ? 'selected' : '' }}>Kepala</option>
+                                    <option value="Katim" {{ old('role') == 'Katim' ? 'selected' : '' }}>Ketua Tim (Katim)</option>
+                                    <option value="Pegawai" {{ old('role') == 'Pegawai' ? 'selected' : '' }}>Anggota / Pegawai</option>
                                 </select>
+                                @error('role') <div class="invalid-feedback fw-bold">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6 mb-4">
@@ -62,6 +64,7 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <small class="text-muted" style="font-size: 0.65rem;">Opsional untuk Admin/Kepala</small>
                             </div>
                         </div>
 

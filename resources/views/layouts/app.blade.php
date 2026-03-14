@@ -94,6 +94,15 @@
             margin-bottom: 2px;
         }
 
+        /* --- NOTIFICATION BADGE --- */
+        .badge-notif { 
+            font-size: 0.6rem; 
+            padding: 0.35em 0.65em; 
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2);
+            margin-left: auto;
+        }
+
         /* --- MAIN CONTENT --- */
         .main-content { margin-left: var(--sidebar-width); min-height: 100vh; transition: all 0.4s; }
         .top-navbar { 
@@ -137,104 +146,111 @@
     </div>
     
     <nav class="mt-2 text-dark">
-        {{-- SECTION: DASHBOARD --}}
-        <div class="menu-divider mt-0">Menu Utama</div>
-        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-th-large me-2"></i> <span>Dashboard</span>
-        </a>
+        {{-- SECTION: UTAMA --}}
+        @if(Auth::user()->role != 'Admin')
+            <div class="menu-divider mt-0">Menu Utama</div>
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <i class="fas fa-th-large me-2"></i> <span>Dashboard</span>
+            </a>
+        @endif
 
-        {{-- SECTION: PERENCANAAN (Hanya muncul jika Role Katim atau Admin) --}}
-        @if(Auth::user()->role != 'Pegawai')
+        {{-- SECTION: PENUGASAN --}}
+        @if(Auth::user()->role == 'Kepala' || Auth::user()->role == 'Katim')
             <div class="menu-divider">Perencanaan</div>
-            <button class="nav-link collapsed {{ request()->routeIs('assignment.*') || request()->routeIs('manajemen.*') ? 'text-primary' : '' }}" 
-                    data-bs-toggle="collapse" data-bs-target="#menuAdmin">
-                <i class="fas fa-clipboard-list me-2"></i> <span>Assigment & User</span>
+            <a href="{{ route('assignment.index') }}" class="nav-link {{ request()->routeIs('assignment.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-list me-2"></i> <span>Assignment</span>
+            </a>
+        @endif
+
+        {{-- SECTION: USER MANAGEMENT --}}
+        @if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Kepala')
+            <div class="menu-divider">Pengaturan</div>
+            <a href="{{ route('manajemen.anggota') }}" class="nav-link {{ request()->is('manajemen/anggota*') ? 'active' : '' }}">
+                <i class="fas fa-users-cog me-2"></i> <span>Manajemen User</span>
+            </a>
+        @endif
+
+        {{-- SECTION: MONITORING --}}
+        @if(Auth::user()->role != 'Admin')
+            <div class="menu-divider">Monitoring</div>
+            <a href="{{ route('monitoring.index') }}" class="nav-link {{ request()->routeIs('monitoring.*') ? 'active' : '' }}">
+                <i class="fas fa-calendar-check me-2"></i> <span>Timeline Agenda</span>
+            </a>
+        @endif
+
+        {{-- SECTION: ABSENSI (KHUSUS SUBBAGIAN UMUM) --}}
+        @if(Auth::user()->team && Auth::user()->team->nama_tim === 'Subbagian Umum')
+            <div class="menu-divider">Administrasi</div>
+            <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : '' }}">
+                <i class="fas fa-user-check me-2"></i> <span>Gatekeeper Absensi</span>
+            </a>
+        @endif
+
+        {{-- SECTION: PELAKSANAAN --}}
+        @if(Auth::user()->role == 'Pegawai')
+            <div class="menu-divider">Pelaksanaan</div>
+            
+            {{-- Tugas Lapangan --}}
+            <button class="nav-link collapsed {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'text-primary' : '' }}" 
+                    data-bs-toggle="collapse" data-bs-target="#menuLapangan">
+                <i class="fas fa-briefcase me-2"></i> 
+                <span>Tugas Lapangan</span>
                 <i class="fas fa-chevron-down arrow"></i>
             </button>
-            <div class="collapse {{ request()->routeIs('assignment.*') || request()->routeIs('manajemen.*') ? 'show' : '' }}" id="menuAdmin">
+            <div class="collapse {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'show' : '' }}" id="menuLapangan">
                 <ul class="submenu">
                     <li>
-                        <a href="{{ route('assignment.create') }}" class="nav-link {{ request()->routeIs('assignment.*') ? 'active' : '' }}">
-                            <i class="fas fa-user-plus me-2"></i> Assigment Petugas
+                        <a href="{{ route('task.index') }}" class="nav-link small {{ request()->routeIs('task.index') ? 'active' : '' }}">
+                            <i class="fas fa-tasks me-2"></i> 
+                            <span>Daftar Tugas</span>
+                            @if(isset($notifLapangan) && $notifLapangan > 0)
+                                <span class="badge bg-danger rounded-pill badge-notif">{{ $notifLapangan }}</span>
+                            @endif
                         </a>
                     </li>
-                    @if(Auth::user()->role == 'Admin')
                     <li>
-                        <a href="{{ route('manajemen.anggota') }}" class="nav-link {{ request()->is('manajemen/anggota*') ? 'active' : '' }}">
-                            <i class="fas fa-users-cog me-2"></i> Data Pegawai
+                        <a href="{{ route('history.index') }}" class="nav-link small {{ request()->routeIs('history.index') ? 'active' : '' }}">
+                            <i class="fas fa-history me-2"></i> Riwayat Laporan
                         </a>
                     </li>
-                    @endif
+                </ul>
+            </div>
+
+            {{-- Agenda Kegiatan --}}
+            <button class="nav-link collapsed {{ request()->routeIs('meeting.*') ? 'text-primary' : '' }}" 
+                    data-bs-toggle="collapse" data-bs-target="#menuRapat">
+                <i class="fas fa-handshake me-2"></i> 
+                <span>Kegiatan Dinas</span>
+                <i class="fas fa-chevron-down arrow"></i>
+            </button>
+            <div class="collapse {{ request()->routeIs('meeting.*') ? 'show' : '' }}" id="menuRapat">
+                <ul class="submenu">
+                    <li>
+                        <a href="{{ route('meeting.index') }}" class="nav-link small {{ request()->routeIs('meeting.index') ? 'active' : '' }}">
+                            <i class="fas fa-calendar-day me-2"></i> 
+                            <span>Jadwal Kegiatan</span>
+                            @if(isset($notifKegiatan) && $notifKegiatan > 0)
+                                <span class="badge bg-danger rounded-pill badge-notif">{{ $notifKegiatan }}</span>
+                            @endif
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('meeting.history') }}" class="nav-link small {{ request()->routeIs('meeting.history') ? 'active' : '' }}">
+                            <i class="fas fa-file-archive me-2"></i> Riwayat & Notulensi
+                        </a>
+                    </li>
                 </ul>
             </div>
         @endif
 
-        {{-- SECTION: MONITORING --}}
-        <div class="menu-divider">Monitoring</div>
-        <a href="{{ route('monitoring.index') }}" class="nav-link {{ request()->routeIs('monitoring.*') ? 'active' : '' }}">
-            <i class="fas fa-calendar-check me-2"></i> <span>Timeline Agenda</span>
-        </a>
-
-        {{-- SECTION: PELAKSANAAN --}}
-        <div class="menu-divider">Pelaksanaan</div>
-        {{-- TUGAS LAPANGAN --}}
-<button class="nav-link collapsed {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'text-primary' : '' }}" 
-        data-bs-toggle="collapse" data-bs-target="#menuLapangan">
-    <i class="fas fa-briefcase me-2"></i> 
-    <span>Tugas Lapangan</span>
-    <i class="fas fa-chevron-down arrow"></i>
-</button>
-<div class="collapse {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'show' : '' }}" id="menuLapangan">
-    <ul class="submenu">
-        <li>
-            <a href="{{ route('task.index') }}" class="nav-link small {{ request()->routeIs('task.index') ? 'active' : '' }} d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-tasks me-2"></i> Daftar Tugas</span>
-                @if(isset($notifLapanganCount) && $notifLapanganCount > 0)
-                    <span class="badge rounded-pill bg-danger badge-notif pulse-red">{{ $notifLapanganCount }}</span>
-                @endif
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('history.index') }}" class="nav-link small {{ request()->routeIs('history.index') ? 'active' : '' }}">
-                <i class="fas fa-history me-2"></i> Riwayat Laporan
-            </a>
-        </li>
-    </ul>
-</div>
-
-{{-- AGENDA RAPAT --}}
-<button class="nav-link collapsed {{ request()->routeIs('meeting.*') ? 'text-primary' : '' }}" 
-        data-bs-toggle="collapse" data-bs-target="#menuRapat">
-    <i class="fas fa-handshake me-2"></i> 
-    <span>Agenda Rapat</span>
-    <i class="fas fa-chevron-down arrow"></i>
-</button>
-<div class="collapse {{ request()->routeIs('meeting.*') ? 'show' : '' }}" id="menuRapat">
-    <ul class="submenu">
-        <li>
-            <a href="{{ route('meeting.index') }}" class="nav-link small {{ request()->routeIs('meeting.index') ? 'active' : '' }} d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-calendar-day me-2"></i> Jadwal Rapat</span>
-                @if(isset($notifRapatCount) && $notifRapatCount > 0)
-                    <span class="badge rounded-pill bg-warning text-dark badge-notif">{{ $notifRapatCount }}</span>
-                @endif
-            </a>
-        </li>
-        <li>
-            <a href="{{ route('meeting.history') }}" class="nav-link small {{ request()->routeIs('meeting.history') ? 'active' : '' }}">
-                <i class="fas fa-file-archive me-2"></i> Arsip Notulensi
-            </a>
-        </li>
-    </ul>
-</div>
-
         {{-- SECTION: SYSTEM --}}
-        <div class="menu-divider">Bantuan</div>
+        <div class="menu-divider">Sistem</div>
         <a href="{{ route('panduan.index') }}" class="nav-link {{ request()->routeIs('panduan.*') ? 'active' : '' }}">
             <i class="fas fa-book me-2"></i> <span>Panduan Pengguna</span>
         </a>
 
         <a href="#" class="nav-link text-danger mt-3" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            <i class="fas fa-power-off me-2"></i> <span>Keluar Aplikasi</span>
+            <i class="fas fa-power-off me-2"></i> <span>Keluar</span>
         </a>
     </nav>
 </div>
@@ -258,7 +274,7 @@
                 </div>
                 <div class="text-start d-none d-sm-block text-dark pe-2">
                     <div class="fw-bold lh-1 mb-1" style="font-size: 0.8rem;">{{ Auth::user()->nama_lengkap }}</div>
-                    <div class="badge {{ Auth::user()->role == 'Pegawai' ? 'bg-secondary' : (Auth::user()->role == 'Katim' ? 'bg-info' : 'bg-primary') }}" style="font-size: 0.55rem;">
+                    <div class="badge {{ Auth::user()->role == 'Pegawai' ? 'bg-secondary' : (Auth::user()->role == 'Katim' ? 'bg-info' : (Auth::user()->role == 'Kepala' ? 'bg-dark' : 'bg-primary')) }}" style="font-size: 0.55rem;">
                         {{ Auth::user()->role }}
                     </div>
                 </div>
@@ -269,7 +285,6 @@
                     <span class="text-muted d-block" style="font-size: 0.6rem;">Username:</span>
                     <span class="fw-bold text-primary">@ {{ Auth::user()->username }}</span>
                 </li>
-                {{-- Point Penting: Menu Profil untuk Edit Role --}}
                 <li>
                     <a class="dropdown-item py-2 rounded-3" href="{{ route('profile.edit') }}">
                         <i class="fas fa-user-cog me-2 text-primary"></i>Pengaturan Profil
@@ -303,10 +318,10 @@
     });
 
     @if(session('success'))
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: "{{ session('success') }}", timer: 2500, showConfirmButton: false, customClass: { popup: 'rounded-4' }});
+        Swal.fire({ icon: 'success', title: 'Berhasil!', text: "{{ session('success') }}", timer: 2500, showConfirmButton: false });
     @endif
     @if(session('error'))
-        Swal.fire({ icon: 'error', title: 'Gagal!', text: "{{ session('error') }}", confirmButtonColor: '#0058a8', customClass: { popup: 'rounded-4' }});
+        Swal.fire({ icon: 'error', title: 'Gagal!', text: "{{ session('error') }}", confirmButtonColor: '#0058a8' });
     @endif
 
     $(document).ready(function() {
@@ -315,6 +330,6 @@
         });
     });
 </script>
-
+@stack('scripts')
 </body>
 </html>

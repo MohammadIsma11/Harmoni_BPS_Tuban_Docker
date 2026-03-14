@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid px-4 pb-5">
     {{-- Header & Navigasi --}}
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3 mt-4">
         <div class="d-flex align-items-center">
             <div class="bg-success bg-opacity-10 p-3 rounded-4 me-3 text-success shadow-sm border border-success border-opacity-10">
                 <i class="fas fa-file-contract fa-lg"></i>
@@ -18,7 +18,7 @@
                 <i class="fas fa-arrow-left me-2"></i>Kembali
             </a>
             <a href="{{ route('meeting.print_presensi', $meeting->id) }}" target="_blank" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm px-4">
-                <i class="fas fa-print me-2"></i>Cetak
+                <i class="fas fa-print me-2"></i>Cetak Presensi
             </a>
         </div>
     </div>
@@ -51,19 +51,22 @@
                         </div>
                     </div>
                 </div>
+                
+                {{-- SECTION MATERI --}}
                 <div class="col-lg-6 ps-lg-4">
-                    <h6 class="fw-bold text-dark mb-2 small text-uppercase">Lampiran Materi</h6>
+                    <h6 class="fw-bold text-dark mb-2 small text-uppercase"><i class="fas fa-paperclip me-2 text-warning"></i>Lampiran Materi</h6>
                     @if($meeting->materi_path)
-                        <div class="d-flex align-items-center p-2 rounded-4 border bg-white shadow-xs">
+                        <div class="d-flex align-items-center p-3 rounded-4 border bg-white shadow-xs">
                             <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-2 me-3">
-                                <i class="fas fa-file-pdf fa-lg"></i>
+                                <i class="fas fa-file-powerpoint fa-lg"></i>
                             </div>
                             <div class="flex-grow-1 text-truncate">
                                 <div class="fw-bold text-dark mb-0 small text-truncate">Dokumen Materi Rapat</div>
-                                <a href="{{ asset('storage/' . $meeting->materi_path) }}" target="_blank" class="text-primary small text-decoration-none fw-bold">
-                                    <i class="fas fa-download me-1"></i> Klik untuk Unduh
-                                </a>
+                                <div class="text-muted small mb-0" style="font-size: 0.65rem;">Klik untuk mengunduh file pendukung</div>
                             </div>
+                            <a href="{{ asset('storage/' . $meeting->materi_path) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                                <i class="fas fa-download me-1"></i> Unduh
+                            </a>
                         </div>
                     @else
                         <div class="p-3 rounded-4 border bg-light text-center border-dashed">
@@ -75,25 +78,39 @@
         </div>
     </div>
 
-    {{-- BARIS 2: NOTULENSI vs DOKUMENTASI & PESERTA --}}
+    {{-- BARIS 2 --}}
     <div class="row g-4">
-        {{-- SISI KIRI: HASIL PEMBAHASAN --}}
+        {{-- SISI KIRI: FILE NOTULENSI --}}
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark mb-3">
-                        <i class="fas fa-book-open text-primary me-2"></i>Hasil Pembahasan
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white border-0 p-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="fas fa-file-alt text-primary me-2"></i>Hasil Pembahasan (Risalah)
                     </h6>
-                    <div class="notulensi-container p-3 rounded-4 bg-light bg-opacity-50 border shadow-inner">
-                        @if($meeting->notulensi_hasil)
-                            <div class="notulensi-text">{{ trim($meeting->notulensi_hasil) }}</div>
-                        @else
-                            <div class="text-center py-5 text-muted">
-                                <i class="fas fa-comment-slash fa-2x mb-3 opacity-25"></i>
-                                <p class="small">Belum ada catatan hasil rapat.</p>
-                            </div>
-                        @endif
-                    </div>
+                </div>
+                <div class="card-body p-4 text-center d-flex flex-column align-items-center justify-content-center">
+                    @if($meeting->notulensi_hasil)
+                        <div class="mb-4">
+                            <i class="fas fa-file-pdf text-danger opacity-50" style="font-size: 6rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Dokumen Notulensi Tersedia</h5>
+                        <p class="text-muted small px-5 mb-4">Hasil keputusan rapat telah diarsipkan dalam bentuk dokumen digital. Silakan klik tombol di bawah untuk melihat atau mengunduh.</p>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{{ asset('storage/' . $meeting->notulensi_hasil) }}" target="_blank" class="btn btn-primary rounded-pill px-5 fw-bold shadow">
+                                <i class="fas fa-eye me-2"></i> Lihat Dokumen
+                            </a>
+                            <a href="{{ asset('storage/' . $meeting->notulensi_hasil) }}" download class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-excel fa-3x mb-3 text-muted opacity-25"></i>
+                            <h6 class="text-muted fw-bold">Belum Ada Notulensi</h6>
+                            <p class="small text-muted">File hasil rapat belum diunggah oleh notulis.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -101,59 +118,44 @@
         {{-- SISI KANAN: GALLERY FOTO & PESERTA --}}
         <div class="col-lg-5">
             <div class="row g-4">
-                {{-- MULTIPLE FOTO DOKUMENTASI --}}
+                {{-- FOTO DOKUMENTASI --}}
                 <div class="col-12">
                     <div class="card border-0 shadow-sm rounded-4 text-dark">
                         <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3 small text-uppercase" style="letter-spacing: 1px;">Dokumentasi Kegiatan</h6>
-                            
-                            @php 
-                                $photos = json_decode($meeting->dokumentasi_path, true) ?? []; 
-                            @endphp
-
+                            <h6 class="fw-bold mb-3 small text-uppercase" style="letter-spacing: 1px;"><i class="fas fa-images me-2 text-danger"></i>Dokumentasi Kegiatan</h6>
+                            @php $photos = json_decode($meeting->dokumentasi_path, true) ?? []; @endphp
                             @if(count($photos) > 0)
                                 <div class="row g-2">
-                                    @foreach($photos as $index => $photo)
-                                        <div class="col-6 col-md-4">
-                                            <div class="position-relative img-container rounded-3 overflow-hidden shadow-sm border border-light">
-                                                <img src="{{ asset('storage/' . $photo) }}" 
-                                                     class="img-fluid w-100" 
-                                                     style="height: 100px; object-fit: cover;"
-                                                     alt="Foto Dokumentasi">
-                                                <div class="img-overlay d-flex flex-column align-items-center justify-content-center gap-2">
-                                                    <a href="{{ asset('storage/' . $photo) }}" target="_blank" class="btn btn-sm btn-light rounded-circle shadow-sm" title="Lihat Foto">
-                                                        <i class="fas fa-search-plus text-primary"></i>
-                                                    </a>
-                                                    <a href="{{ asset('storage/' . $photo) }}" download="Dokumentasi_{{ $index + 1 }}_{{ Str::slug($meeting->title) }}" class="btn btn-sm btn-primary rounded-circle shadow-sm" title="Unduh Foto">
-                                                        <i class="fas fa-download"></i>
-                                                    </a>
+                                    @foreach($photos as $photo)
+                                        <div class="col-4">
+                                            <div class="position-relative img-container rounded-3 overflow-hidden shadow-sm border">
+                                                <img src="{{ asset('storage/' . $photo) }}" class="img-fluid w-100" style="height: 80px; object-fit: cover;">
+                                                <div class="img-overlay d-flex align-items-center justify-content-center gap-1">
+                                                    <a href="{{ asset('storage/' . $photo) }}" target="_blank" class="btn btn-xs btn-light rounded-circle"><i class="fas fa-search-plus text-primary"></i></a>
+                                                    <a href="{{ asset('storage/' . $photo) }}" download class="btn btn-xs btn-primary rounded-circle"><i class="fas fa-download"></i></a>
                                                 </div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
-                                <div class="mt-3">
-                                    <small class="text-muted italic" style="font-size: 0.65rem;">* Arahkan kursor ke foto untuk melihat/mengunduh.</small>
-                                </div>
                             @else
                                 <div class="py-4 bg-light rounded-3 border border-dashed text-center">
-                                    <i class="fas fa-images text-muted opacity-25 fa-2x"></i>
-                                    <p class="small text-muted mb-0 mt-2">Belum ada foto dokumentasi.</p>
+                                    <small class="text-muted">Tidak ada foto dokumentasi.</small>
                                 </div>
                             @endif
                         </div>
                     </div>
                 </div>
 
-                {{-- Partisipan --}}
+                {{-- DAFTAR HADIR --}}
                 <div class="col-12">
-                    <div class="card border-0 shadow-sm rounded-4 text-dark">
+                    <div class="card border-0 shadow-sm rounded-4 text-dark border-start border-4 border-success">
                         <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3 small text-uppercase" style="letter-spacing: 1px;">Daftar Hadir Peserta</h6>
-                            <div class="list-group list-group-flush overflow-auto pe-1" style="max-height: 300px;">
+                            <h6 class="fw-bold mb-3 small text-uppercase" style="letter-spacing: 1px;"><i class="fas fa-users me-2 text-success"></i>Daftar Hadir Terverifikasi</h6>
+                            <div class="list-group list-group-flush overflow-auto pe-1" style="max-height: 250px;">
                                 @foreach($semuaPeserta as $p)
                                     @php $isHadir = in_array($p->assigned_to, $userSudahHadir); @endphp
-                                    <div class="list-group-item px-0 py-2 border-0 d-flex align-items-center {{ $isHadir ? '' : 'opacity-50' }}">
+                                    <div class="list-group-item px-0 py-2 border-0 d-flex align-items-center {{ $isHadir ? '' : 'opacity-40' }}">
                                         <div class="avatar-circle {{ $isHadir ? 'bg-success text-white' : 'bg-light text-muted border' }} rounded-circle me-2">
                                             {{ strtoupper(substr($p->assignee->nama_lengkap, 0, 1)) }}
                                         </div>
@@ -174,28 +176,14 @@
 </div>
 
 <style>
-    @media (min-width: 992px) {
-        .border-end-lg { border-right: 1px solid #dee2e6 !important; }
-    }
-    .notulensi-text {
-        white-space: pre-wrap; line-height: 1.6; color: #334155;
-        font-size: 0.95rem; text-align: justify; word-break: break-word;
-    }
-    .avatar-circle { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; }
-    
-    .img-container { transition: all 0.3s ease; }
-    .img-overlay {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 88, 168, 0.6); opacity: 0; transition: all 0.3s ease;
-        backdrop-filter: blur(2px);
-    }
+    @media (min-width: 992px) { .border-end-lg { border-right: 1px solid #dee2e6 !important; } }
+    .avatar-circle { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; flex-shrink: 0; }
+    .img-container { transition: all 0.3s ease; position: relative; }
+    .img-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 88, 168, 0.7); opacity: 0; transition: all 0.3s ease; backdrop-filter: blur(1px); }
     .img-container:hover .img-overlay { opacity: 1; }
-    .img-overlay .btn { transform: translateY(10px); transition: all 0.3s ease; }
-    .img-container:hover .img-overlay .btn { transform: translateY(0); }
-
-    .list-group::-webkit-scrollbar { width: 3px; }
-    .list-group::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .list-group::-webkit-scrollbar { width: 4px; }
+    .list-group::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .btn-xs { padding: 0.25rem 0.4rem; font-size: 0.7rem; }
     .border-dashed { border-style: dashed !important; border-width: 2px !important; border-color: #cbd5e1 !important; }
 </style>
 @endsection

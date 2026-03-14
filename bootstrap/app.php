@@ -10,9 +10,24 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        // Mendaftarkan alias middleware agar bisa dipanggil di routes/web.php
+        $middleware->alias([
+            'cek.cuti' => \App\Http\Middleware\CheckStatusCuti::class,
+        ]);
+
+        // Opsional: Jika ingin mengarahkan user yang belum login ke halaman tertentu
+        $middleware->redirectTo(
+            guests: '/',
+            users: function () {
+                // Logika redirect cerdas jika user SUDAH login tapi coba akses /login lagi
+                if (auth()->user()->role === 'Admin') {
+                    return route('manajemen.anggota');
+                }
+                return route('dashboard');
+            }
+        );
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

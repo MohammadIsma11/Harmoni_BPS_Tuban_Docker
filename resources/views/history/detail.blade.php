@@ -50,12 +50,16 @@
 
                 <div class="row">
                     <div class="col-6 mb-3">
-                        <label class="small text-muted d-block fw-bold text-uppercase mb-1">Tanggal</label>
-                        <p class="text-dark fw-semibold mb-0">{{ \Carbon\Carbon::parse($agenda->event_date)->format('d F Y') }}</p>
+                        <label class="small text-muted d-block fw-bold text-uppercase mb-1">Tanggal Pelaksanaan</label>
+                        <p class="text-dark fw-bold mb-0">
+                            {{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('d F Y') }}
+                        </p>
                     </div>
                     <div class="col-6 mb-3">
                         <label class="small text-muted d-block fw-bold text-uppercase mb-1">Hari</label>
-                        <p class="text-dark fw-semibold mb-0">{{ \Carbon\Carbon::parse($agenda->event_date)->translatedFormat('l') }}</p>
+                        <p class="text-dark fw-bold mb-0">
+                            {{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('l') }}
+                        </p>
                     </div>
                 </div>
 

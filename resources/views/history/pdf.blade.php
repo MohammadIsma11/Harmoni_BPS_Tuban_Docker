@@ -139,7 +139,7 @@
         <tr>
             <td class="label">Waktu Pelaksanaan</td>
             <td class="separator">:</td>
-            <td class="content">{{ \Carbon\Carbon::parse($agenda->event_date)->translatedFormat('l, d F Y') }}</td>
+            <td class="content">{{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('l, d F Y') }}</td>
         </tr>
         <tr>
             <td class="label">Responden</td>

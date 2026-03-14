@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             
             // Role user untuk pembagian hak akses
-            $table->enum('role', ['Admin', 'Katim', 'Pegawai'])->default('Pegawai');
+            $table->enum('role', ['Admin', 'Kepala','Katim', 'Pegawai'])->default('Pegawai');
             
             // Relasi ke tabel teams
             $table->foreignId('team_id')->nullable()->constrained('teams')->onDelete('set null');

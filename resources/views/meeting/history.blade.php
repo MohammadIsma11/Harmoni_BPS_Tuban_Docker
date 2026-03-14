@@ -3,33 +3,55 @@
 @section('content')
 <div class="container-fluid px-4 pb-5">
     {{-- Header Section --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 mt-4">
         <div>
             <h4 class="fw-bold mb-0 text-dark">Riwayat & Notulensi</h4>
             <p class="text-muted small mb-0">Manajemen arsip dokumentasi dan hasil rapat yang telah terlaksana.</p>
         </div>
-        <div class="bg-primary bg-opacity-10 p-2 px-3 rounded-4 border border-primary border-opacity-10">
+        <div class="bg-primary bg-opacity-10 p-2 px-3 rounded-4 border border-primary border-opacity-10 shadow-sm">
             <i class="fas fa-archive text-primary me-2"></i>
             <span class="fw-bold small text-primary">{{ $historyMeetings->count() }} Agenda Tersimpan</span>
         </div>
     </div>
 
-    {{-- Filter & Search Card --}}
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-3">
-            <form action="{{ route('meeting.history') }}" method="GET" class="row g-2">
-                <div class="col-md-10">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" name="search" class="form-control bg-light border-0" placeholder="Cari judul rapat atau lokasi..." value="{{ request('search') }}">
+                {{-- 1. Navigasi Tab (Pindah antar Function) --}}
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="btn-group p-1 bg-white rounded-4 shadow-sm border border-primary border-opacity-10">
+                        <a href="{{ route('meeting.history') }}" 
+                        class="btn btn-sm rounded-3 px-4 {{ request()->routeIs('meeting.history') ? 'btn-primary shadow-sm' : 'btn-light text-muted' }}">
+                        <i class="fas fa-handshake me-1"></i> Rapat Dinas
+                        </a>
+                        <a href="{{ route('meeting.history.dinas') }}" 
+                        class="btn btn-sm rounded-3 px-4 {{ request()->routeIs('meeting.history.dinas') ? 'btn-primary shadow-sm' : 'btn-light text-muted' }}">
+                        <i class="fas fa-route me-1"></i> Dinas Luar
+                        </a>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold"> Cari</button>
+
+                {{-- 2. Filter & Search Card --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-3">
+                        {{-- Form action dinamis: mengarah ke route aktif saat ini --}}
+                        <form action="{{ request()->routeIs('meeting.history.dinas') ? route('meeting.history.dinas') : route('meeting.history') }}" 
+                            method="GET" class="row g-2">
+                            
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" name="search" class="form-control bg-light border-0" 
+                                        placeholder="Cari judul {{ request()->routeIs('meeting.history.dinas') ? 'dinas luar' : 'rapat' }}..." 
+                                        value="{{ request('search') }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold shadow-sm">
+                                    <i class="fas fa-filter me-1"></i> Cari
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
-        </div>
-    </div>
 
     {{-- Tabel Riwayat Modern --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -48,44 +70,44 @@
                     <tr>
                         <td class="ps-4">
                             <div class="fw-bold text-dark mb-0">{{ \Carbon\Carbon::parse($meeting->event_date)->translatedFormat('d M Y') }}</div>
-                            <small class="text-muted">{{ $meeting->start_time ?? '--:--' }} WIB</small>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $meeting->start_time ?? '--:--' }} WIB</small>
                         </td>
                         <td>
                             <div class="fw-bold text-primary mb-1">{{ $meeting->title }}</div>
-                            <div class="small text-muted text-truncate" style="max-width: 250px;">
-                                <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $meeting->location }}
-                            </div>
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="avatar-sm-table bg-info text-white me-2">
-                                    {{ substr($meeting->notulis->nama_lengkap ?? 'N', 0, 1) }}
+                                <div class="avatar-sm-table bg-info text-white me-2 shadow-sm">
+                                    {{ strtoupper(substr($meeting->notulis->nama_lengkap ?? 'N', 0, 1)) }}
                                 </div>
                                 <div class="small fw-bold text-dark">{{ $meeting->notulis->nama_lengkap ?? '-' }}</div>
                             </div>
                         </td>
                         <td class="text-center">
-                            <div class="d-flex justify-content-center gap-1">
+                            <div class="d-flex justify-content-center gap-2">
                                 {{-- Button Lihat Detail --}}
-                                <a href="{{ route('meeting.history.detail', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs" title="Lihat Detail">
+                                <a href="{{ route('meeting.history.detail', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Lihat Detail">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
 
-                                {{-- Akses Khusus Notulis atau Admin --}}
-                                @if($meeting->notulis_id == Auth::id() || Auth::user()->role == 'Admin')
-                                    <a href="{{ route('meeting.notulensi', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs" title="Edit Notulensi">
+                                {{-- Akses Khusus Notulis atau Admin/Kepala --}}
+                                @if($meeting->notulis_id == Auth::id() || in_array(Auth::user()->role, ['Admin', 'Kepala']))
+                                    {{-- Button Edit Notulensi --}}
+                                    <a href="{{ route('meeting.notulensi', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Edit Notulensi">
                                         <i class="fas fa-edit text-warning"></i>
                                     </a>
                                     
-                                    <button type="button" class="btn btn-light btn-sm rounded-3 shadow-xs btn-delete" 
+                                    <button type="button" class="btn btn-light btn-sm rounded-3 shadow-xs border btn-delete-history" 
                                             data-id="{{ $meeting->id }}" 
                                             data-title="{{ $meeting->title }}"
                                             title="Hapus Riwayat">
                                         <i class="fas fa-trash text-danger"></i>
                                     </button>
-                                    
-                                    {{-- Form Hapus (Tersembunyi) --}}
-                                    <form id="delete-form-{{ $meeting->id }}" action="{{ route('meeting.history.destroy', $meeting->id) }}" method="POST" class="d-none">
+
+                                    {{-- Form Hapus (Pastikan id-nya unik sesuai looping) --}}
+                                    <form id="delete-form-{{ $meeting->id }}" 
+                                        action="{{ route('meeting.history.destroy', $meeting->id) }}" 
+                                        method="POST" class="d-none">
                                         @csrf
                                         @method('DELETE')
                                     </form>
@@ -96,8 +118,11 @@
                     @empty
                     <tr>
                         <td colspan="4" class="text-center py-5">
-                            <img src="https://illustrations.popsy.co/amber/empty-folder.svg" style="height: 120px;" class="mb-3 opacity-50">
-                            <h6 class="fw-bold text-muted">Belum ada riwayat rapat yang tersimpan.</h6>
+                            <div class="py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3"></i>
+                                <h6 class="fw-bold text-muted">Belum ada riwayat rapat yang tersimpan.</h6>
+                                <p class="small text-muted">Data akan muncul di sini setelah notulensi rapat diselesaikan.</p>
+                            </div>
                         </td>
                     </tr>
                     @endforelse
@@ -109,38 +134,57 @@
 
 <style>
     .avatar-sm-table {
-        width: 28px; height: 28px; border-radius: 8px;
+        width: 32px; height: 32px; border-radius: 10px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 0.7rem; font-weight: 800;
+        font-size: 0.75rem; font-weight: 800;
     }
     .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .table thead th { font-size: 0.7rem; letter-spacing: 0.5px; }
-    .btn-light:hover { background: #fff; border-color: var(--bps-blue); }
+    .table thead th { font-size: 0.7rem; letter-spacing: 0.5px; font-weight: 700; color: #64748b; }
+    .btn-light:hover { background: #fff !important; border-color: #0058a8 !important; }
     tr { transition: all 0.2s; }
-    tr:hover { background-color: #f8fafc; }
+    tr:hover { background-color: rgba(0, 88, 168, 0.02) !important; }
+    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
 </style>
 
-{{-- Script Hapus dengan SweetAlert2 --}}
+{{-- SweetAlert2 & JQuery --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{-- Di bagian paling bawah history.blade.php --}}
+@push('scripts')
 <script>
-    $('.btn-delete').click(function() {
-        let id = $(this).data('id');
-        let title = $(this).data('title');
+    // Gunakan document on click agar JQuery tetap bisa deteksi tombol meski halaman baru dimuat
+    $(document).on('click', '.btn-delete-history', function(e) {
+        e.preventDefault();
+        
+        // Ambil data id dan title dari tombol yang diklik
+        const id = $(this).data('id');
+        const title = $(this).data('title');
         
         Swal.fire({
             title: 'Hapus Riwayat?',
-            text: "Data notulensi '" + title + "' akan dihapus permanen!",
+            text: "Seluruh data rapat '" + title + "' akan dihapus permanen!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Ya, Hapus!',
             cancelButtonText: 'Batal',
-            customClass: { popup: 'rounded-4' }
+            customClass: {
+                popup: 'rounded-4'
+            }
         }).then((result) => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Sedang Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                // Submit form yang sesuai dengan ID tombol tadi
                 $('#delete-form-' + id).submit();
             }
         });
     });
 </script>
+@endpush
 @endsection

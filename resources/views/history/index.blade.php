@@ -27,7 +27,7 @@
         padding: 1rem 1rem;
         vertical-align: middle;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     /* 2. Compact Action Buttons */
@@ -66,7 +66,7 @@
         padding: 9px 18px;
         border-radius: 10px;
         font-weight: 700;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         transition: all 0.3s;
         display: inline-flex;
         align-items: center;
@@ -116,27 +116,35 @@
 
     .location-info {
         color: #64748b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         display: block;
         margin-top: 2px;
     }
 </style>
 
-<div class="container-fluid px-4">
+<div class="container-fluid px-4 mt-3">
     {{-- Page Info --}}
-    <div class="mb-4">
-        <h4 class="fw-bold mb-1 text-dark">Riwayat Laporan</h4>
-        <p class="text-muted small">Kelola dan monitor seluruh laporan aktivitas yang telah selesai.</p>
+    <div class="mb-4 d-flex align-items-center justify-content-between">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark">Riwayat Laporan Lapangan</h4>
+            <p class="text-muted small mb-0">Monitor seluruh aktivitas pengawasan yang telah selesai dilaporkan.</p>
+        </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ route('history.index') }}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active">Riwayat</li>
+            </ol>
+        </nav>
     </div>
 
     {{-- Main Wrapper --}}
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         {{-- Header Bar --}}
         <div class="action-header-card">
             <div class="row align-items-center g-3">
                 <div class="col-md-6">
                     <div class="d-flex gap-2">
-                        @if(auth()->user()->role == 'Admin' || auth()->user()->role == 'Katim')
+                        @if(in_array(auth()->user()->role, ['Admin', 'Katim']))
                             <a href="{{ route('history.pdf_rekap') }}" class="btn-rekap btn-rekap-pdf shadow-sm">
                                 <i class="fas fa-file-pdf"></i> PDF Rekap
                             </a>
@@ -166,8 +174,8 @@
                     <thead>
                         <tr>
                             <th class="ps-4" width="25%">Petugas Pelaksana</th>
-                            <th width="35%">Detail Kegiatan</th>
-                            <th width="15%" class="text-center">Tanggal</th>
+                            <th width="35%">Detail Kegiatan & Lokasi</th>
+                            <th width="15%" class="text-center">Tgl Pelaksanaan</th>
                             <th class="text-center pe-4" width="20%">Aksi Manajerial</th>
                         </tr>
                     </thead>
@@ -176,12 +184,14 @@
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-box me-3 bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 0.8rem; border: 1px solid rgba(0,88,168,0.1);">
+                                    <div class="avatar-box me-3 bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 0.85rem; border: 1px solid rgba(0,88,168,0.1);">
                                         {{ strtoupper(substr($r->assignee->nama_lengkap, 0, 1)) }}
                                     </div>
                                     <div>
                                         <div class="fw-bold text-dark lh-1 mb-1">{{ $r->assignee->nama_lengkap }}</div>
-                                        <span class="text-muted" style="font-size: 0.7rem;">{{ $r->creator->team->nama_tim ?? 'Lintas Tim' }}</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">
+                                            <i class="fas fa-users me-1"></i> {{ $r->assignee->team->nama_tim ?? 'Lintas Tim' }}
+                                        </span>
                                     </div>
                                 </div>
                             </td>
@@ -193,22 +203,42 @@
                             </td>
                             <td class="text-center">
                                 <span class="date-badge">
-                                    <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($r->tanggal_pelaksanaan)->translatedFormat('d M Y') }}
+                                    {{-- Kita pakai tanggal_pelaksanaan karena ini kolom hasil input pegawai --}}
+                                    <i class="far fa-calendar-check me-1"></i> 
+                                    @if($r->tanggal_pelaksanaan)
+                                        {{ \Carbon\Carbon::parse($r->tanggal_pelaksanaan)->translatedFormat('d M Y') }}
+                                    @else
+                                        {{-- Jika kosong (misal data lama), baru tampilkan event_date dari Katim --}}
+                                        {{ \Carbon\Carbon::parse($r->event_date)->translatedFormat('d M Y') }}
+                                    @endif
                                 </span>
                             </td>
                             <td class="text-center pe-4">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('history.detail', $r->id) }}" class="btn-action btn-view" title="Detail"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('history.edit', $r->id) }}" class="btn-action btn-edit" title="Ubah"><i class="fas fa-edit"></i></a>
-                                    <a href="{{ route('history.export', $r->id) }}" class="btn-action btn-pdf" title="Cetak PDF"><i class="fas fa-file-pdf"></i></a>
+                                    {{-- Detail --}}
+                                    <a href="{{ route('history.detail', $r->id) }}" class="btn-action btn-view" title="Lihat Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     
-                                    @if(auth()->user()->role == 'Admin' || auth()->user()->role == 'Katim')
-                                    <form action="{{ route('assignment.destroy', $r->id) }}" method="POST" id="form-delete-{{ $r->id }}" class="d-inline">
-                                        @csrf @method('DELETE')
-                                        <button type="button" onclick="confirmDelete({{ $r->id }}, '{{ $r->title }}')" class="btn-action btn-delete" title="Hapus">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
+                                    {{-- Edit (Hanya jika belum divalidasi atau sesuai role) --}}
+                                    <a href="{{ route('history.edit', $r->id) }}" class="btn-action btn-edit" title="Edit Laporan">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    {{-- Cetak --}}
+                                    <a href="{{ route('history.export', $r->id) }}" class="btn-action btn-pdf" title="Cetak PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    
+                                    {{-- Hapus: Hanya untuk Admin, Katim, atau Pemilik Laporan --}}
+                                    @if(auth()->user()->role == 'Admin' || auth()->user()->role == 'Katim' || $r->assigned_to == auth()->id())
+                                        <form action="{{ route('history.task_destroy', $r->id) }}" method="POST" id="form-delete-{{ $r->id }}" class="d-inline">
+                                            @csrf 
+                                            @method('DELETE')
+                                            <button type="button" onclick="confirmDelete({{ $r->id }}, '{{ $r->title }}')" class="btn-action btn-delete" title="Hapus Laporan">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </td>
@@ -216,8 +246,11 @@
                         @empty
                         <tr>
                             <td colspan="4" class="text-center py-5">
-                                <i class="fas fa-inbox fa-3x text-light mb-3"></i>
-                                <p class="text-muted fw-bold">Tidak ada riwayat laporan ditemukan.</p>
+                                <div class="py-4">
+                                    <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                                    <p class="text-muted fw-bold mb-0">Belum ada riwayat laporan yang tersimpan.</p>
+                                    <small class="text-muted">Laporan yang sudah Anda kirim akan muncul di sini.</small>
+                                </div>
                             </td>
                         </tr>
                         @endforelse
@@ -225,20 +258,32 @@
                 </table>
             </div>
         </div>
+        
+        {{-- Pagination --}}
+        @if($riwayat->hasPages())
+            <div class="card-footer bg-white py-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small text-muted">Menampilkan {{ $riwayat->firstItem() }} - {{ $riwayat->lastItem() }} dari {{ $riwayat->total() }} data</span>
+                    {{ $riwayat->links() }}
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
+{{-- SweetAlert Konfirmasi Hapus --}}
 <script>
     function confirmDelete(id, title) {
         Swal.fire({
             title: 'Hapus Laporan?',
-            html: `Anda akan menghapus laporan <strong>"${title}"</strong> secara permanen.`,
+            html: `Apakah Anda yakin ingin menghapus laporan <br><strong>"${title}"</strong>?<br><small class='text-danger'>Data yang dihapus tidak dapat dikembalikan!</small>`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: '#cf1322',
             cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, Hapus!',
+            confirmButtonText: '<i class="fas fa-trash-alt me-2"></i> Ya, Hapus!',
             cancelButtonText: 'Batal',
+            reverseButtons: true,
             customClass: { popup: 'rounded-4' }
         }).then((result) => {
             if (result.isConfirmed) {

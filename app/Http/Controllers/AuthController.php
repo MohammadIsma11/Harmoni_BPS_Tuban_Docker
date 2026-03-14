@@ -10,9 +10,9 @@ class AuthController extends Controller
     // Menampilkan halaman login
     public function showLogin()
     {
-        // Jika user sudah login, jangan kasih ke halaman login lagi, lempar ke dashboard
+        // Jika sudah login, lempar ke halaman yang sesuai rolenya
         if (Auth::check()) {
-            return redirect()->intended('dashboard');
+            return $this->redirectBasedOnRole(Auth::user());
         }
         return view('auth.login');
     }
@@ -26,15 +26,29 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            // 1. Bersihkan session lama dan buat yang baru (Penting untuk cegah 419)
+            // 1. Regenerate session untuk keamanan
             $request->session()->regenerate();
 
-            // 2. Redirect ke intended (halaman yang dituju sebelumnya) atau ke dashboard
-            return redirect()->intended('dashboard')->with('success', 'Selamat Datang Kembali!');
+            // 2. Redirect cerdas berdasarkan role (Mencegah 403 Forbidden)
+            return $this->redirectBasedOnRole(Auth::user());
         }
 
-        // Jika gagal, kembali dengan error
+        // Jika gagal
         return back()->with('error', 'Username atau Password salah!')->withInput();
+    }
+
+    /**
+     * Helper function untuk menentukan arah redirect setelah login/check
+     */
+    private function redirectBasedOnRole($user)
+    {
+        if ($user->role === 'Admin') {
+            // Admin IT langsung ke Manajemen User (Karena tidak punya dashboard)
+            return redirect()->route('manajemen.anggota')->with('success', 'Selamat Datang, Admin IT!');
+        }
+
+        // Role lainnya (Kepala, Katim, Pegawai) ke Dashboard
+        return redirect()->intended('dashboard')->with('success', 'Selamat Datang Kembali!');
     }
 
     // Proses logout
@@ -42,10 +56,7 @@ class AuthController extends Controller
     {
         Auth::logout();
 
-        // Bersihkan semua data session agar benar-benar fresh
         $request->session()->invalidate();
-
-        // Buat token CSRF baru agar login berikutnya tidak 419
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'Berhasil Keluar.');
