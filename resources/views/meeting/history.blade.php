@@ -1,0 +1,289 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container-fluid px-4 pb-5">
+    {{-- Header Section --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 mt-4">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">Riwayat & Notulensi</h4>
+            <p class="text-muted small mb-0">Manajemen arsip dokumentasi dan hasil rapat yang telah terlaksana.</p>
+        </div>
+        <div class="bg-primary bg-opacity-10 p-2 px-3 rounded-4 border border-primary border-opacity-10 shadow-sm">
+            <i class="fas fa-archive text-primary me-2"></i>
+            <span class="fw-bold small text-primary">{{ $historyMeetings->count() }} Agenda Tersimpan</span>
+        </div>
+    </div>
+
+                {{-- 1. Navigasi Tab (Pindah antar Function) --}}
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="btn-group p-1 bg-white rounded-4 shadow-sm border border-primary border-opacity-10">
+                        <a href="{{ route('meeting.history') }}" 
+                        class="btn btn-sm rounded-3 px-4 {{ request()->routeIs('meeting.history') ? 'btn-primary shadow-sm' : 'btn-light text-muted' }}">
+                        <i class="fas fa-handshake me-1"></i> Rapat Dinas
+                        </a>
+                        <a href="{{ route('meeting.history.dinas') }}" 
+                        class="btn btn-sm rounded-3 px-4 {{ request()->routeIs('meeting.history.dinas') ? 'btn-primary shadow-sm' : 'btn-light text-muted' }}">
+                        <i class="fas fa-route me-1"></i> Dinas Luar
+                        </a>
+                    </div>
+                </div>
+
+                {{-- 2. Filter & Search Card --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-3">
+                        {{-- Form action dinamis: mengarah ke route aktif saat ini --}}
+                        <form action="{{ request()->routeIs('meeting.history.dinas') ? route('meeting.history.dinas') : route('meeting.history') }}" 
+                            method="GET" class="row g-2">
+                            
+                            <div class="col-md-10">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" name="search" class="form-control bg-light border-0" 
+                                        placeholder="Cari judul {{ request()->routeIs('meeting.history.dinas') ? 'dinas luar' : 'rapat' }}..." 
+                                        value="{{ request('search') }}">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold shadow-sm">
+                                    <i class="fas fa-filter me-1"></i> Cari
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+    {{-- Tabel Riwayat Modern --}}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+<<<<<<< Updated upstream
+                    <tr class="text-muted small text-uppercase">
+                        <th class="border-0 py-3 ps-4" style="width: 15%;">Tanggal</th>
+                        <th class="border-0 py-3" style="width: 35%;">Agenda Rapat</th>
+                        <th class="border-0 py-3">Notulis</th>
+                        <th class="border-0 py-3 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($historyMeetings as $meeting)
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark mb-0">{{ \Carbon\Carbon::parse($meeting->event_date)->translatedFormat('d M Y') }}</div>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $meeting->start_time ?? '--:--' }} WIB</small>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-primary mb-1">{{ $meeting->title }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm-table bg-info text-white me-2 shadow-sm">
+                                    {{ strtoupper(substr($meeting->notulis->nama_lengkap ?? 'N', 0, 1)) }}
+                                </div>
+                                <div class="small fw-bold text-dark">{{ $meeting->notulis->nama_lengkap ?? '-' }}</div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                {{-- Button Lihat Detail --}}
+                                <a href="{{ route('meeting.history.detail', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Lihat Detail">
+                                    <i class="fas fa-eye text-primary"></i>
+                                </a>
+
+                                {{-- Akses Khusus Notulis atau Admin/Kepala --}}
+                                @if($meeting->notulis_id == Auth::id() || in_array(Auth::user()->role, ['Admin', 'Kepala']))
+                                    {{-- Button Edit Notulensi --}}
+                                    <a href="{{ route('meeting.notulensi', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Edit Notulensi">
+                                        <i class="fas fa-edit text-warning"></i>
+                                    </a>
+                                    
+                                    <button type="button" class="btn btn-light btn-sm rounded-3 shadow-xs border btn-delete-history" 
+                                            data-id="{{ $meeting->id }}" 
+                                            data-title="{{ $meeting->title }}"
+                                            title="Hapus Riwayat">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+
+                                    {{-- Form Hapus (Pastikan id-nya unik sesuai looping) --}}
+                                    <form id="delete-form-{{ $meeting->id }}" 
+                                        action="{{ route('meeting.history.destroy', $meeting->id) }}" 
+                                        method="POST" class="d-none">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3"></i>
+                                <h6 class="fw-bold text-muted">Belum ada riwayat rapat yang tersimpan.</h6>
+                                <p class="small text-muted">Data akan muncul di sini setelah notulensi rapat diselesaikan.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+=======
+    <tr class="text-muted small text-uppercase">
+        <th class="border-0 py-3 ps-4" style="width: 15%;">Tanggal</th>
+        {{-- Header dinamis: Rapat atau Dinas Luar --}}
+        <th class="border-0 py-3" style="width: 35%;">
+            {{ request()->routeIs('meeting.history.dinas') ? 'Agenda Dinas Luar' : 'Agenda Rapat' }}
+        </th>
+        {{-- Header dinamis: Notulis atau Pelapor --}}
+        <th class="border-0 py-3">
+            {{ request()->routeIs('meeting.history.dinas') ? 'Pelapor' : 'Notulis' }}
+        </th>
+        <th class="border-0 py-3 text-center">Aksi</th>
+    </tr>
+</thead>
+<tbody>
+    @forelse($historyMeetings as $meeting)
+    <tr>
+        <td class="ps-4">
+            <div class="fw-bold text-dark mb-0">{{ \Carbon\Carbon::parse($meeting->event_date)->translatedFormat('d M Y') }}</div>
+            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $meeting->start_time ?? '--:--' }} WIB</small>
+        </td>
+        <td>
+            <div class="fw-bold text-primary mb-1">{{ $meeting->title }}</div>
+            
+            {{-- LOGIKA LOKASI: Hanya tampil jika di rute Dinas Luar --}}
+            @if(request()->routeIs('meeting.history.dinas'))
+                <small class="text-muted">
+                    <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $meeting->location }}
+                </small>
+            @endif
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm-table {{ $meeting->activity_type_id == 3 ? 'bg-success' : 'bg-info' }} text-white me-2 shadow-sm">
+                    {{ strtoupper(substr(($meeting->activity_type_id == 3 ? ($meeting->assignee->nama_lengkap ?? 'D') : ($meeting->notulis->nama_lengkap ?? 'N')), 0, 1)) }}
+                </div>
+                <div class="small fw-bold text-dark">
+                    {{ $meeting->activity_type_id == 3 ? ($meeting->assignee->nama_lengkap ?? '-') : ($meeting->notulis->nama_lengkap ?? '-') }}
+                </div>
+            </div>
+        </td>
+        <td class="text-center">
+            {{-- Bagian Aksi tetap sama seperti sebelumnya --}}
+            <div class="d-flex justify-content-center gap-2">
+                @if($meeting->activity_type_id == 3)
+                    <a href="{{ route('meeting.history.detail_dinas', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Lihat Detail Dinas">
+                        <i class="fas fa-eye text-success"></i>
+                    </a>
+                @else
+                    <a href="{{ route('meeting.history.detail', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Lihat Detail Rapat">
+                        <i class="fas fa-eye text-primary"></i>
+                    </a>
+                @endif
+
+                @php 
+                    $isOwner = ($meeting->activity_type_id == 3) ? ($meeting->assigned_to == Auth::id()) : ($meeting->notulis_id == Auth::id());
+                @endphp
+
+                @if($isOwner || in_array(Auth::user()->role, ['Admin', 'Kepala']))
+                    @if($meeting->activity_type_id == 3)
+                        <a href="{{ route('meeting.dinas.create', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Edit Laporan">
+                            <i class="fas fa-edit text-warning"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('meeting.notulensi', $meeting->id) }}" class="btn btn-light btn-sm rounded-3 shadow-xs border" title="Edit Notulensi">
+                            <i class="fas fa-edit text-warning"></i>
+                        </a>
+                    @endif
+                    
+                    <button type="button" class="btn btn-light btn-sm rounded-3 shadow-xs border btn-delete-history" 
+                            data-id="{{ $meeting->id }}" 
+                            data-title="{{ $meeting->title }}"
+                            title="Hapus">
+                        <i class="fas fa-trash text-danger"></i>
+                    </button>
+
+                    <form id="delete-form-{{ $meeting->id }}" 
+                        action="{{ route('meeting.history.destroy', $meeting->id) }}" 
+                        method="POST" class="d-none">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
+            </div>
+        </td>
+    </tr>
+    @empty
+     <tr>
+        <td colspan="4" class="text-center py-5">
+            <div class="py-4">
+                <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3"></i>
+                <h6 class="fw-bold text-muted">Data riwayat belum tersedia.</h6>
+            </div>
+        </td>
+    </tr>
+    @endforelse
+</tbody>
+>>>>>>> Stashed changes
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm-table {
+        width: 32px; height: 32px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 800;
+    }
+    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .table thead th { font-size: 0.7rem; letter-spacing: 0.5px; font-weight: 700; color: #64748b; }
+    .btn-light:hover { background: #fff !important; border-color: #0058a8 !important; }
+    tr { transition: all 0.2s; }
+    tr:hover { background-color: rgba(0, 88, 168, 0.02) !important; }
+    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
+</style>
+
+{{-- SweetAlert2 & JQuery --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{-- Di bagian paling bawah history.blade.php --}}
+@push('scripts')
+<script>
+    // Gunakan document on click agar JQuery tetap bisa deteksi tombol meski halaman baru dimuat
+    $(document).on('click', '.btn-delete-history', function(e) {
+        e.preventDefault();
+        
+        // Ambil data id dan title dari tombol yang diklik
+        const id = $(this).data('id');
+        const title = $(this).data('title');
+        
+        Swal.fire({
+            title: 'Hapus Riwayat?',
+            text: "Seluruh data rapat '" + title + "' akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                popup: 'rounded-4'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Sedang Menghapus...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                // Submit form yang sesuai dengan ID tombol tadi
+                $('#delete-form-' + id).submit();
+            }
+        });
+    });
+</script>
+@endpush
+@endsection
