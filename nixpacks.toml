@@ -1,9 +1,9 @@
 [phases.setup]
-nixPkgs = ["php", "phpExtensions.gd", "composer", "nodejs"]
+nixPkgs = ["php", "composer", "nodejs"]
 
 [phases.install]
 cmds = [
-  "composer install --no-dev --optimize-autoloader",
+  "composer install --ignore-platform-req=ext-gd --no-dev --optimize-autoloader",
   "npm install",
   "npm run build"
 ]
