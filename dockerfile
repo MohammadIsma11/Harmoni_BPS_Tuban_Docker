@@ -6,18 +6,19 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libzip-dev \
+    zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+    && docker-php-ext-install gd pdo pdo_mysql zip
 
 WORKDIR /var/www
 
 COPY . .
 
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
+# install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN php composer.phar install --optimize-autoloader --no-scripts --no-interaction
+RUN composer install --no-interaction --optimize-autoloader
 
 EXPOSE 8000
 
