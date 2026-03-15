@@ -16,6 +16,7 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
+        'has_super_access',
         'team_id',
     ];
 

@@ -40,11 +40,14 @@
                             @error('hasil_rapat_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
+                        {{-- TAMPILAN FILE NOTULENSI LAMA --}}
                         @if($isEdit && $meeting->notulensi_hasil)
                             <div class="mt-4 p-3 bg-light rounded-4 d-inline-flex align-items-center border">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                <span class="small fw-bold text-muted">File Notulensi Tersimpan: </span>
-                                <a href="{{ asset('storage/' . $meeting->notulensi_hasil) }}" target="_blank" class="ms-2 badge bg-primary text-decoration-none">Lihat Dokumen</a>
+                                <span class="small fw-bold text-muted">File Tersimpan: </span>
+                                <a href="{{ asset('storage/' . $meeting->notulensi_hasil) }}" target="_blank" class="ms-2 badge bg-primary text-decoration-none">
+                                    <i class="fas fa-external-link-alt me-1"></i> Lihat Dokumen
+                                </a>
                             </div>
                         @endif
                         
@@ -83,6 +86,16 @@
                     <div class="card-body p-4 text-dark">
                         <h6 class="fw-bold mb-3"><i class="fas fa-file-powerpoint me-2 text-warning"></i>Materi Rapat</h6>
                         <input type="file" name="materi_path" id="materi_path" class="form-control rounded-3" accept=".pdf,.pptx,.ppt">
+                        
+                        {{-- TAMPILAN MATERI LAMA --}}
+                        @if($isEdit && $meeting->materi_path)
+                            <div class="mt-2 p-2 bg-light rounded-3 border">
+                                <small class="d-block text-muted mb-1" style="font-size: 0.7rem;">Materi Terunggah:</small>
+                                <a href="{{ asset('storage/' . $meeting->materi_path) }}" target="_blank" class="text-decoration-none small fw-bold">
+                                    <i class="fas fa-file-download me-1"></i> Download Materi
+                                </a>
+                            </div>
+                        @endif
                         <small class="text-muted d-block mt-1" style="font-size: 0.65rem;">Max: 20MB (PDF/PPTX)</small>
                     </div>
                 </div>
@@ -92,8 +105,23 @@
                     <div class="card-body p-4 text-dark">
                         <h6 class="fw-bold mb-3"><i class="fas fa-images me-2 text-danger"></i>Foto Dokumentasi</h6>
                         <input type="file" name="foto_dokumentasi[]" id="foto_dokumentasi" class="form-control rounded-3" accept="image/*" multiple {{ $isEdit ? '' : 'required' }}>
-                        <div id="image-preview-container" class="row g-2 mt-2"></div>
-                        <small class="text-muted d-block mt-2" style="font-size: 0.65rem;">Maksimal 20MB per foto.</small>
+                        
+                        <div id="image-preview-container" class="row g-2 mt-2">
+                            {{-- TAMPILAN FOTO LAMA (KHUSUS EDIT) --}}
+                            @if($isEdit && $meeting->dokumentasi_path)
+                                @php $fotos = json_decode($meeting->dokumentasi_path); @endphp
+                                @if(is_array($fotos))
+                                    @foreach($fotos as $foto)
+                                        <div class="col-3 existing-photo">
+                                            <div class="preview-img-wrapper border-success border-opacity-25">
+                                                <img src="{{ asset('storage/' . $foto) }}" alt="Existing photo">
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            @endif
+                        </div>
+                        <small class="text-muted d-block mt-2" style="font-size: 0.65rem;">Maksimal 20MB per foto. @if($isEdit) <span class="text-warning">Upload baru akan mengganti foto lama.</span> @endif</small>
                     </div>
                 </div>
 
@@ -103,9 +131,9 @@
                     {{ $isEdit ? 'Simpan Perubahan' : 'Upload Notulensi' }}
                 </button>
 
-                {{-- TOMBOL BATAL (DINAMIS) --}}
+                {{-- TOMBOL BATAL --}}
                 <a href="{{ $isEdit ? route('meeting.history') : route('meeting.index') }}" 
-                class="btn btn-light w-100 rounded-pill py-2 text-muted fw-bold">
+                class="btn btn-light w-100 rounded-pill py-2 text-muted fw-bold border">
                     <i class="fas fa-times me-1"></i> Batal
                 </a>
             </div>
@@ -114,7 +142,7 @@
 </div>
 
 <style>
-    .preview-img-wrapper { height: 70px; width: 100%; overflow: hidden; border-radius: 10px; border: 2px solid #f1f5f9; }
+    .preview-img-wrapper { height: 70px; width: 100%; overflow: hidden; border-radius: 10px; border: 2px solid #f1f5f9; background: #eee; }
     .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
     .btn-primary { background: linear-gradient(135deg, #0058a8 0%, #007bff 100%); transition: all 0.3s ease; }
     .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 88, 168, 0.3) !important; }

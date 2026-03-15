@@ -307,8 +307,63 @@ class MeetingController extends Controller
     }
 }
 
+public function updateDinasLuar(Request $request, $id)
+{
+    $meeting = Agenda::findOrFail($id);
 
+    // Pastikan hanya pemilik laporan atau Admin yang bisa edit
+    if ($meeting->assigned_to != auth()->id() && auth()->user()->role != 'Admin') {
+        return back()->with('error', 'Akses ditolak.');
+    }
 
+    $request->validate([
+        'lokasi_spesifik'  => 'required|string|max:255',
+        'hasil_rapat_file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:20480',
+        'foto_dokumentasi' => 'nullable|array',
+        'foto_dokumentasi.*' => 'image|mimes:jpg,jpeg,png|max:20480',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // 1. Handle Update File Laporan
+        $notulensiFile = $meeting->notulensi_hasil;
+        if ($request->hasFile('hasil_rapat_file')) {
+            // Hapus file lama jika ada
+            if ($notulensiFile) Storage::disk('public')->delete($notulensiFile);
+            $notulensiFile = $request->file('hasil_rapat_file')->store('notulensi_rapat', 'public');
+        }
+
+        // 2. Handle Update Foto Dokumentasi
+        $paths = json_decode($meeting->dokumentasi_path, true) ?? [];
+        if ($request->hasFile('foto_dokumentasi')) {
+            // Hapus foto-foto lama
+            foreach ($paths as $oldPhoto) {
+                Storage::disk('public')->delete($oldPhoto);
+            }
+            // Simpan foto-foto baru
+            $paths = [];
+            foreach ($request->file('foto_dokumentasi') as $file) {
+                $paths[] = $file->store('dokumentasi_rapat', 'public');
+            }
+        }
+
+        // 3. Eksekusi Update
+        $meeting->update([
+            'location'         => $request->lokasi_spesifik,
+            'notulensi_hasil'  => $notulensiFile,
+            'dokumentasi_path' => json_encode($paths),
+            'updated_at'       => now()
+        ]);
+
+        DB::commit();
+        return redirect()->route('meeting.history.dinas')->with('success', 'Laporan Dinas Luar berhasil diperbarui!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withInput()->with('error', 'Gagal update: ' . $e->getMessage());
+    }
+}
 
 
     /*
@@ -404,17 +459,50 @@ public function listDinasHistory(Request $request)
     }
 
     public function detailHistory($id)
-    {
-        $meeting = Agenda::with(['creator', 'notulis', 'activityType'])->findOrFail($id);
+{
+    $meeting = Agenda::with(['creator', 'notulis', 'activityType'])->findOrFail($id);
+    $user = Auth::user();
 
-        $semuaPeserta = Agenda::where('title', $meeting->title)
-            ->where('event_date', $meeting->event_date)
-            ->whereIn('activity_type_id', [2, 3])
-            ->with('assignee.team')
-            ->get();
+    // 1. LOGIKA PROTEKSI (BYPASS UNTUK AKSES SUPER)
+    // Cek apakah dia pemilik rapat (notulis), pembuat agenda (creator/katim), atau user dengan akses super
+    $isNotulis = ($meeting->notulis_id == $user->id);
+    $isCreator = ($meeting->user_id == $user->id);
+    $isSuper   = ($user->role == 'Kepala' || $user->has_super_access == 1);
 
-        $userSudahHadir = MeetingPresence::whereIn('agenda_id', $semuaPeserta->pluck('id'))->pluck('user_id')->toArray();
-
-        return view('meeting.detail_history', compact('meeting', 'semuaPeserta', 'userSudahHadir'));
+    // Jika bukan salah satu dari di atas, maka tolak
+    if (!$isNotulis && !$isCreator && !$isSuper) {
+        abort(403, 'Anda tidak memiliki akses untuk melihat detail rapat ini.');
     }
+
+    // 2. QUERY DATA PESERTA & KEHADIRAN
+    $semuaPeserta = Agenda::where('title', $meeting->title)
+        ->where('event_date', $meeting->event_date)
+        ->whereIn('activity_type_id', [2, 3])
+        ->with('assignee.team')
+        ->get();
+
+    $userSudahHadir = MeetingPresence::whereIn('agenda_id', $semuaPeserta->pluck('id'))
+        ->pluck('user_id')
+        ->toArray();
+
+    return view('meeting.detail_history', compact('meeting', 'semuaPeserta', 'userSudahHadir'));
+}
+
+    public function detailDinasHistory($id)
+{
+    $meeting = Agenda::with(['creator', 'assignee', 'activityType'])->findOrFail($id);
+    $user = Auth::user();
+
+    // CEK APAKAH USER BOLEH LIHAT?
+    $isOwner = ($meeting->assigned_to == $user->id);
+    $isCreator = ($meeting->user_id == $user->id);
+   $isSuper = ($user->role == 'Kepala' || $user->has_super_access == 1);
+
+    // Jika BUKAN pemilik, BUKAN pembuat, dan BUKAN user super, maka BLOKIR
+    if (!$isOwner && !$isCreator && !$isSuper) {
+        abort(403, 'Anda tidak memiliki akses untuk melihat detail laporan ini.');
+    }
+
+    return view('meeting.detail_dinas', compact('meeting'));
+}
 }

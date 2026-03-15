@@ -243,6 +243,16 @@
             </div>
         @endif
 
+            {{-- Menu Akses Super --}}
+            @if(Auth::user()->role == 'Kepala' || Auth::user()->role == 'Katim' || Auth::user()->has_super_access == 1)
+                <li class="nav-item">
+                    <a href="{{ route('super.access.index') }}" class="nav-link {{ request()->routeIs('super.access.*') ? 'active' : '' }}">
+                        <i class="fas fa-shield-alt me-2 text-danger"></i>
+                        <span>Akses Super</span>
+                    </a>
+                </li>
+            @endif
+
         {{-- SECTION: SYSTEM --}}
         <div class="menu-divider">Sistem</div>
         <a href="{{ route('panduan.index') }}" class="nav-link {{ request()->routeIs('panduan.*') ? 'active' : '' }}">

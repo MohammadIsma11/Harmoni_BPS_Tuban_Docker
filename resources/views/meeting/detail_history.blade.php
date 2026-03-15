@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('meeting.history') }}" class="btn btn-white rounded-pill px-4 fw-bold shadow-sm border text-muted">
+            <a href="javascript:history.back()" class="btn btn-white rounded-pill px-4 fw-bold shadow-sm border text-muted">
                 <i class="fas fa-arrow-left me-2"></i>Kembali
             </a>
             <a href="{{ route('meeting.print_presensi', $meeting->id) }}" target="_blank" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm px-4">

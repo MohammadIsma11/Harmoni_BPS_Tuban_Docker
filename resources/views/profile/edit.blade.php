@@ -18,7 +18,7 @@
                         @method('PUT')
 
                         <div class="row g-4">
-                            {{-- SISI KIRI: DATA DIRI --}}
+                            {{-- SISI KIRI: DATA DIRI & KEAMANAN --}}
                             <div class="col-md-6 border-end pe-md-4">
                                 <h6 class="fw-bold text-dark mb-4 border-bottom pb-2">
                                     <i class="fas fa-user-circle me-2 text-primary"></i>Informasi Akun
@@ -44,6 +44,7 @@
                                 <div class="mb-3">
                                     <label class="small fw-bold mb-1">Password Baru</label>
                                     <input type="password" name="password" class="form-control rounded-3 bg-light border-0 @error('password') is-invalid @enderror" placeholder="Kosongkan jika tidak ganti">
+                                    @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label class="small fw-bold mb-1">Konfirmasi Password</label>
@@ -51,25 +52,52 @@
                                 </div>
                             </div>
 
-                            {{-- SISI KANAN: ROLE & TIM --}}
+                            {{-- SISI KANAN: ROLE & TIM + AKSES SUPER --}}
                             <div class="col-md-6 ps-md-4">
                                 <h6 class="fw-bold text-dark mb-4 border-bottom pb-2">
                                     <i class="fas fa-shield-alt me-2 text-success"></i>Akses & Tim
                                 </h6>
 
+                                {{-- Info Tim --}}
                                 <div class="mb-4 p-3 bg-primary bg-opacity-10 rounded-4 shadow-xs border border-primary border-opacity-10">
                                     <label class="small fw-bold d-block mb-1 text-primary">Unit Kerja / Tim:</label>
                                     <span class="h6 fw-bold mb-0 text-dark">{{ $user->team->nama_tim ?? 'Lintas Tim' }}</span>
                                 </div>
 
+                                {{-- FITUR TAMBAHAN: HANYA TAMPIL UNTUK PEGAWAI --}}
+                                @if(Auth::user()->role == 'Pegawai')
+                                    <div class="mb-4">
+                                        <label class="small fw-bold mb-3 text-dark text-uppercase" style="letter-spacing: 1px;">Fitur Tambahan</label>
+                                        <div class="p-3 border rounded-4 bg-white shadow-sm {{ $user->has_super_access ? 'border-danger border-opacity-50' : '' }}">
+                                            <div class="form-check form-switch d-flex align-items-center justify-content-between ps-0">
+                                                <div class="me-3">
+                                                    <label class="form-check-label fw-bold {{ $user->has_super_access ? 'text-danger' : 'text-dark' }} d-block mb-0" for="superAccessSwitch">
+                                                        Mode Akses Monitoring
+                                                    </label>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">Aktifkan untuk menampilkan menu Akses Super di sidebar Anda.</small>
+                                                </div>
+                                                <input type="hidden" name="has_super_access" value="0">
+                                                <input class="form-check-input ms-0 mt-0 shadow-none" type="checkbox" name="has_super_access" role="switch" id="superAccessSwitch" value="1" 
+                                                    {{ old('has_super_access', $user->has_super_access) ? 'checked' : '' }}
+                                                    style="width: 40px; height: 20px; cursor: pointer;">
+                                            </div>
+                                        </div>
+                                        @if($user->has_super_access)
+                                            <div class="mt-2 text-danger small fw-bold">
+                                                <i class="fas fa-info-circle me-1"></i> Mode Monitoring aktif. Anda dapat memantau seluruh riwayat kegiatan.
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    {{-- Hidden input agar nilai has_super_access Kepala/Katim tetap tersimpan --}}
+                                    <input type="hidden" name="has_super_access" value="{{ $user->has_super_access }}">
+                                @endif
+
+                                {{-- PILIHAN ROLE --}}
                                 <div class="mb-3">
                                     <label class="small fw-bold mb-3 text-dark text-uppercase" style="letter-spacing: 1px;">Peran Anda</label>
-                                    
-                                    {{-- LOGIKA PILIHAN ROLE DINAMIS --}}
                                     <div class="d-flex flex-column gap-3">
-                                        
                                         @if($user->role == 'Admin')
-                                            {{-- ROLE ADMIN: LOCK TOTAL --}}
                                             <div class="p-3 border rounded-4 bg-light shadow-sm border-primary">
                                                 <div class="d-flex align-items-center">
                                                     <div class="icon-box me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
@@ -82,9 +110,7 @@
                                                 </div>
                                                 <input type="hidden" name="role" value="Admin">
                                             </div>
-
                                         @elseif($user->role == 'Pegawai')
-                                            {{-- ROLE PEGAWAI: LOCK TOTAL --}}
                                             <div class="p-3 border rounded-4 bg-light shadow-sm">
                                                 <div class="d-flex align-items-center">
                                                     <div class="icon-box me-3 bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
@@ -97,12 +123,8 @@
                                                 </div>
                                                 <input type="hidden" name="role" value="Pegawai">
                                             </div>
-
                                         @else
-                                            {{-- ROLE KEPALA ATAU KATIM: BISA TURUN KE PEGAWAI --}}
-                                            
-                                            {{-- Pilihan Role Saat Ini --}}
-                                            <div class="role-selection">
+                                            <div class="role-selection mb-1">
                                                 <input type="radio" name="role" id="roleCurrent" value="{{ $user->role }}" class="btn-check" checked>
                                                 <label class="btn btn-outline-light text-start p-3 w-100 rounded-4 shadow-xs border" for="roleCurrent">
                                                     <div class="d-flex align-items-center">
@@ -116,8 +138,6 @@
                                                     </div>
                                                 </label>
                                             </div>
-
-                                            {{-- Pilihan Turun ke Pegawai --}}
                                             <div class="role-selection">
                                                 <input type="radio" name="role" id="rolePegawai" value="Pegawai" class="btn-check">
                                                 <label class="btn btn-outline-light text-start p-3 w-100 rounded-4 shadow-xs border" for="rolePegawai">
@@ -133,7 +153,6 @@
                                                 </label>
                                             </div>
                                         @endif
-
                                     </div>
                                 </div>
 
@@ -144,7 +163,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -153,33 +171,22 @@
 </div>
 
 <style>
-    /* Styling Radio Button Custom Harmoni */
     .btn-check:checked + .btn-outline-light {
         background-color: #fff !important;
         border-color: #0058a8 !important;
         box-shadow: 0 8px 20px rgba(0, 88, 168, 0.12) !important;
         transform: translateY(-2px);
     }
-    .btn-check:checked + .btn-outline-light .fw-bold {
-        color: #0058a8 !important;
+    .btn-check:checked + .btn-outline-light .fw-bold { color: #0058a8 !important; }
+    .btn-check:checked + .btn-outline-light .icon-box { background-color: #0058a8 !important; color: #fff !important; }
+    
+    .form-check-input:checked { 
+        background-color: #dc3545 !important; 
+        border-color: #dc3545 !important; 
     }
-    .btn-check:checked + .btn-outline-light .icon-box {
-        background-color: #0058a8 !important;
-        color: #fff !important;
-    }
-    .btn-outline-light {
-        border-color: #f1f5f9 !important;
-        transition: all 0.3s ease;
-    }
-    .btn-outline-light:hover {
-        background-color: #f8fafc !important;
-        border-color: #e2e8f0 !important;
-    }
-    .form-control:focus {
-        background-color: #fff !important;
-        box-shadow: 0 0 0 4px rgba(0, 88, 168, 0.1) !important;
-        border: 1px solid #0058a8 !important;
-    }
+    
+    .btn-outline-light { border-color: #f1f5f9 !important; transition: all 0.3s ease; }
+    .form-control:focus { background-color: #fff !important; box-shadow: 0 0 0 4px rgba(0, 88, 168, 0.1) !important; border: 1px solid #0058a8 !important; }
     .shadow-xs { box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 </style>
 @endsection

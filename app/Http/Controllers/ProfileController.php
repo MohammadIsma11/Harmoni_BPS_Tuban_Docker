@@ -17,41 +17,48 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-{
-    /** @var \App\Models\User $user */
-    $user = Auth::user();
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-    // 1. Tentukan Role yang diizinkan (Validation Logic)
-    $allowedRoles = [$user->role]; // Default: hanya boleh role dirinya sendiri
+        // 1. Tentukan Role yang diizinkan (Validation Logic)
+        $allowedRoles = [$user->role];
 
-    if ($user->role === 'Kepala') {
-        $allowedRoles = ['Kepala', 'Pegawai'];
-    } elseif ($user->role === 'Katim') {
-        $allowedRoles = ['Katim', 'Pegawai'];
-    } 
-    // Jika role === 'Pegawai', $allowedRoles tetap hanya ['Pegawai']
+        if ($user->role === 'Kepala') {
+            $allowedRoles = ['Kepala', 'Pegawai'];
+        } elseif ($user->role === 'Katim') {
+            $allowedRoles = ['Katim', 'Pegawai'];
+        } elseif ($user->role === 'Admin') {
+            $allowedRoles = ['Admin'];
+        }
 
-    $request->validate([
-        'nama_lengkap' => 'required|string|max:255',
-        'username'     => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-        'role'         => ['required', Rule::in($allowedRoles)],
-        'password'     => 'nullable|min:8|confirmed',
-    ]);
+        $request->validate([
+            'nama_lengkap'     => 'required|string|max:255',
+            'username'         => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'role'             => ['required', Rule::in($allowedRoles)],
+            'password'         => 'nullable|min:8|confirmed',
+            'has_super_access' => 'nullable|boolean', 
+        ]);
 
-    $user->nama_lengkap = $request->nama_lengkap;
-    $user->username = $request->username;
-    
-    // 2. Update Role hanya jika user bukan Admin
-    if ($user->role !== 'Admin') {
-        $user->role = $request->role;
+        // 2. Update Data Dasar
+        $user->nama_lengkap = $request->nama_lengkap;
+        $user->username = $request->username;
+        
+        // 3. Update Akses Super (Bisa diatur sendiri oleh user)
+        $user->has_super_access = $request->has_super_access;
+
+        // 4. Update Role hanya jika user bukan Admin
+        if ($user->role !== 'Admin') {
+            $user->role = $request->role;
+        }
+
+        // 5. Update Password jika diisi
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profil berhasil diperbarui!');
     }
-
-    if ($request->filled('password')) {
-        $user->password = Hash::make($request->password);
-    }
-
-    $user->save();
-
-    return back()->with('success', 'Profil berhasil diperbarui!');
-}
 }

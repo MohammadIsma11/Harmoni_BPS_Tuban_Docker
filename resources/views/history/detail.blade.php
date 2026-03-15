@@ -16,7 +16,7 @@
             <h4 class="fw-bold mb-0">Detail Laporan Perjalanan Dinas</h4>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('history.index') }}" class="btn btn-light rounded-pill px-4 fw-bold">
+            <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4 fw-bold">
                 <i class="fas fa-arrow-left me-2"></i>Kembali
             </a>
             <a href="{{ route('history.export', $agenda->id) }}" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
