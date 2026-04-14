@@ -5,39 +5,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <style>
-        /* Gaya Judul Utama */
-        .title { font-size: 16pt; font-weight: bold; text-align: center; color: #000000; }
-        .meta { font-size: 10pt; text-align: center; color: #333; }
-        
-        /* Header Tabel */
-        .table-header { 
-            background-color: #0070c0; 
-            color: #ffffff; 
-            font-weight: bold; 
-            text-align: center; 
-            border: 2pt solid #000000; 
-            vertical-align: middle;
-        }
-
-        /* Class untuk Teks Panjang (Nama, Aktivitas, dll) */
-        .cell-data { 
-            border: 1pt solid #000000; 
-            vertical-align: top; /* Rata Atas */
-            padding: 5px;
-        }
-
-        /* Class untuk Angka & Tanggal (BENAHI DI SINI) */
-        .text-center { 
-            text-align: center; 
-            vertical-align: top; /* TAMBAHKAN INI BIAR GAK DI BAWAH */
-            border: 1pt solid #000000;
-            padding: 5px;
-        }
-
-        /* Background Zebra */
-        .bg-odd { background-color: #f2f2f2; }
-    </style>
+    <link rel="stylesheet" href="{{ public_path('css/pages/history-excel.css') }}">
 </head>
 <body>
     <table>

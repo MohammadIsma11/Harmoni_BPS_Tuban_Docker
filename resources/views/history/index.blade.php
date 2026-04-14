@@ -4,123 +4,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* 1. Table Core Styling */
-    .table-history {
-        background: white;
-        border-radius: 0 0 20px 20px;
-    }
-
-    .table-history thead th {
-        background-color: #f8fafc;
-        color: #64748b;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        font-weight: 800;
-        padding: 1.1rem 1rem;
-        border-bottom: 1px solid #e2e8f0;
-        border-top: none;
-    }
-
-    .table-history tbody td {
-        padding: 1rem 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 0.85rem;
-    }
-
-    /* 2. Compact Action Buttons */
-    .btn-action {
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        transition: all 0.2s;
-        border: none;
-        text-decoration: none;
-        font-size: 0.85rem;
-    }
-
-    .btn-view { background: #e0f2fe; color: #0369a1; }
-    .btn-edit { background: #fef9c3; color: #a16207; }
-    .btn-pdf { background: #fef2f2; color: #b91c1c; }
-    .btn-delete { background: #fff1f0; color: #cf1322; }
-
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-    }
-
-    /* 3. Header Action Bar */
-    .action-header-card {
-        background: white;
-        border-radius: 20px 20px 0 0;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 1.5rem;
-    }
-
-    .btn-rekap {
-        padding: 9px 18px;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 0.75rem;
-        transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border: none;
-        color: white !important;
-    }
-
-    .btn-rekap-pdf { background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%); }
-    .btn-rekap-excel { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
-    
-    .btn-rekap:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .search-group-custom {
-        max-width: 350px;
-        width: 100%;
-    }
-
-    .search-group-custom .form-control {
-        border-radius: 10px 0 0 10px !important;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        font-size: 0.85rem;
-    }
-
-    .search-group-custom .btn {
-        border-radius: 0 10px 10px 0 !important;
-        border: 1px solid #e2e8f0;
-        border-left: none;
-        background: #f8fafc;
-        color: #64748b;
-    }
-
-    /* 4. Data Components */
-    .date-badge {
-        background: #f1f5f9;
-        color: #475569;
-        padding: 5px 12px;
-        border-radius: 6px;
-        font-weight: 700;
-        font-size: 0.75rem;
-        white-space: nowrap;
-    }
-
-    .location-info {
-        color: #64748b;
-        font-size: 0.75rem;
-        display: block;
-        margin-top: 2px;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/history-index.css') }}">
 
 <div class="container-fluid px-4 mt-3">
     {{-- Page Info --}}
@@ -185,32 +69,26 @@
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar-box me-3 bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 0.85rem; border: 1px solid rgba(0,88,168,0.1);">
-                                        {{ strtoupper(substr($r->assignee->nama_lengkap, 0, 1)) }}
+                                        {{ strtoupper(substr($r->agenda->assignee->nama_lengkap ?? '?', 0, 1)) }}
                                     </div>
                                     <div>
-                                        <div class="fw-bold text-dark lh-1 mb-1">{{ $r->assignee->nama_lengkap }}</div>
+                                        <div class="fw-bold text-dark lh-1 mb-1">{{ $r->agenda->assignee->nama_lengkap ?? 'Pegawai' }}</div>
                                         <span class="text-muted" style="font-size: 0.7rem;">
-                                            <i class="fas fa-users me-1"></i> {{ $r->assignee->team->nama_tim ?? 'Lintas Tim' }}
+                                            <i class="fas fa-users me-1"></i> {{ $r->agenda->assignee->team->nama_tim ?? 'Lintas Tim' }}
                                         </span>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <div class="fw-bold text-dark mb-0 lh-sm">{{ $r->title }}</div>
+                                <div class="fw-bold text-dark mb-0 lh-sm">{{ $r->agenda->title }}</div>
                                 <span class="location-info">
-                                    <i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $r->location }}
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $r->lokasi_tujuan }}
                                 </span>
                             </td>
                             <td class="text-center">
                                 <span class="date-badge">
-                                    {{-- Kita pakai tanggal_pelaksanaan karena ini kolom hasil input pegawai --}}
                                     <i class="far fa-calendar-check me-1"></i> 
-                                    @if($r->tanggal_pelaksanaan)
-                                        {{ \Carbon\Carbon::parse($r->tanggal_pelaksanaan)->translatedFormat('d M Y') }}
-                                    @else
-                                        {{-- Jika kosong (misal data lama), baru tampilkan event_date dari Katim --}}
-                                        {{ \Carbon\Carbon::parse($r->event_date)->translatedFormat('d M Y') }}
-                                    @endif
+                                    {{ \Carbon\Carbon::parse($r->tanggal_lapor)->translatedFormat('d M Y') }}
                                 </span>
                             </td>
                             <td class="text-center pe-4">
@@ -272,24 +150,5 @@
 </div>
 
 {{-- SweetAlert Konfirmasi Hapus --}}
-<script>
-    function confirmDelete(id, title) {
-        Swal.fire({
-            title: 'Hapus Laporan?',
-            html: `Apakah Anda yakin ingin menghapus laporan <br><strong>"${title}"</strong>?<br><small class='text-danger'>Data yang dihapus tidak dapat dikembalikan!</small>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#cf1322',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: '<i class="fas fa-trash-alt me-2"></i> Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            customClass: { popup: 'rounded-4' }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('form-delete-' + id).submit();
-            }
-        });
-    }
-</script>
+<script src="{{ asset('js/pages/history-index.js') }}"></script>
 @endsection

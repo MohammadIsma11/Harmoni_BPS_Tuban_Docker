@@ -1,45 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    :root { --bps-blue: #0058a8; }
-    .timeline-container { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
-    .timeline-table { border-collapse: separate; border-spacing: 0; width: 100%; }
-    
-    .sticky-col { 
-        position: sticky; left: 0; background: white; z-index: 10; 
-        border-right: 2px solid #f1f5f9; min-width: 220px; padding: 12px 20px !important;
-    }
-    
-    .timeline-table thead th { 
-        background: #f8fafc; color: #64748b; font-size: 0.7rem; 
-        text-transform: uppercase; letter-spacing: 1px; padding: 15px 10px; border: none;
-    }
+<link rel="stylesheet" href="{{ asset('css/pages/absensi-index.css') }}">
 
-    .date-cell { min-width: 45px; text-align: center; border-left: 1px solid #f1f5f9 !important; }
-    .date-number { font-size: 0.9rem; font-weight: 800; display: block; }
-    .date-day { font-size: 0.6rem; opacity: 0.7; }
-    
-    .is-weekend { background-color: #fff1f2 !important; color: #e11d48 !important; }
-    .is-today { background-color: #eff6ff !important; color: var(--bps-blue) !important; border-bottom: 3px solid var(--bps-blue) !important; }
-
-    .leave-bar {
-        height: 26px; width: 32px; border-radius: 7px; display: flex; align-items: center; 
-        justify-content: center; font-size: 0.6rem; font-weight: 800; color: white;
-        margin: 0 auto; cursor: pointer; transition: 0.2s;
-        position: relative; z-index: 5;
-    }
-    .leave-bar:hover { transform: scale(1.2); filter: brightness(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-    /* Mapping Warna Status Sesuai Excel */
-    .status-ct { background: #ef4444 !important; }    /* Merah */
-    .status-cst1 { background: #f43f5e !important; }  /* Pink/Rose */
-    .status-pd { background: #f59e0b !important; }    /* Kuning */
-
-    .filter-active { background: var(--bps-blue) !important; color: white !important; }
-    .btn-import { background: #2ecc71; color: white; border: none; font-weight: bold; border-radius: 50px; padding: 8px 20px; transition: 0.3s; }
-    .btn-import:hover { background: #27ae60; color: white; transform: translateY(-2px); }
-</style>
+{{-- Small config script for external JS --}}
+<script>
+    window.absensiRoutes = {
+        store: "{{ route('absensi.store') }}",
+        update: "{{ route('absensi.update', ':id') }}",
+        destroy: "{{ route('absensi.destroy', ':id') }}"
+    };
+</script>
+<script src="{{ asset('js/pages/absensi-index.js') }}"></script>
 
 <div class="container-fluid px-4 pb-5">
     {{-- Header --}}
@@ -237,82 +209,4 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Init Tooltip
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-
-        const modalAbsensi = new bootstrap.Modal(document.getElementById('modalInputAbsensi'));
-        const formAbsensi = document.getElementById('formAbsensi');
-        const methodField = document.getElementById('methodField');
-        const btnDelete = document.getElementById('btnDeleteAbsensi');
-        const formDelete = document.getElementById('formDelete');
-
-        // Filter Berhalangan
-        $('#btnFilterCuti').on('click', function() {
-            $(this).toggleClass('filter-active');
-            const isFiltering = $(this).hasClass('filter-active');
-            $('.pegawai-row').each(function() {
-                const hasLeave = $(this).data('has-leave') === true;
-                if (isFiltering) {
-                    $(this).toggle(hasLeave);
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Edit Klik Bar
-        $(document).on('click', '.btn-edit-absensi', function() {
-            const data = $(this).data();
-            const id = data.id;
-
-            $('#modalTitle').html('<i class="fas fa-edit me-2 text-warning"></i>Edit Data Kehadiran');
-            let updateUrl = "{{ route('absensi.update', ':id') }}";
-            formAbsensi.action = updateUrl.replace(':id', id);
-            methodField.innerHTML = '@method("PUT")';
-
-            $('#edit_user_id').val(data.userId);
-            $('#edit_start_date').val(data.startDate || data.start);
-            $('#edit_end_date').val(data.endDate || data.end);
-            $('#edit_status').val(data.status);
-            $('#edit_keterangan').val(data.ket);
-
-            btnDelete.classList.remove('d-none');
-            btnDelete.dataset.id = id;
-            modalAbsensi.show();
-        });
-
-        // Delete Handle
-        btnDelete.addEventListener('click', function() {
-            const id = this.dataset.id;
-            Swal.fire({
-                title: 'Hapus Data?',
-                text: "Data ini akan dihapus permanen!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, Hapus!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let deleteUrl = "{{ route('absensi.destroy', ':id') }}";
-                    formDelete.action = deleteUrl.replace(':id', id);
-                    formDelete.submit();
-                }
-            });
-        });
-
-        // Reset for New Input
-        $('[data-bs-target="#modalInputAbsensi"]').on('click', function() {
-            $('#modalTitle').html('<i class="fas fa-user-edit me-2 text-primary"></i>Input Manual');
-            formAbsensi.action = "{{ route('absensi.store') }}";
-            methodField.innerHTML = '';
-            formAbsensi.reset();
-            btnDelete.classList.add('d-none');
-        });
-    });
-</script>
 @endsection

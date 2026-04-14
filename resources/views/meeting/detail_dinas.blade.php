@@ -116,37 +116,5 @@
     </div>
 </div>
 
-<style>
-    .object-fit-cover { object-fit: cover; }
-    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    
-    /* Hover Effects for Images */
-    .img-hover-container .img-overlay {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.4);
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .img-hover-container:hover .img-overlay {
-        opacity: 1;
-    }
-
-    .img-hover-container img {
-        transition: transform 0.5s ease;
-    }
-
-    .img-hover-container:hover img {
-        transform: scale(1.1);
-    }
-
-    .btn-circle-sm {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/meeting-detail-dinas.css') }}">
 @endsection

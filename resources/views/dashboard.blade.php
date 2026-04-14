@@ -5,89 +5,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* Dashboard Specific Styles - Mempertahankan Style Lama Secara Utuh */
-    :root {
-        --bps-blue: #0058a8;
-        --bps-dark-blue: #003d75;
-        --bps-gold: #ffc107;
-    }
-
-    .dashboard-header {
-        background: linear-gradient(135deg, var(--bps-blue) 0%, #007bff 100%);
-        border-radius: 20px; padding: 2rem; color: white; margin-bottom: 2rem;
-        box-shadow: 0 10px 20px rgba(0, 88, 168, 0.15); position: relative; overflow: hidden;
-    }
-
-    .dashboard-header::after {
-        content: ""; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
-        background: rgba(255, 255, 255, 0.1); border-radius: 50%;
-    }
-
-    .stat-card {
-        border: none; border-radius: 18px; transition: all 0.3s ease; overflow: hidden;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
-    }
-
-    .stat-icon {
-        width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
-        border-radius: 14px; font-size: 1.5rem;
-    }
-
-    /* Ranking & Trend Styles - Layout Horizontal */
-    .dashboard-panel {
-        border: none; border-radius: 20px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.02); padding: 1.5rem; height: 100%;
-    }
-
-    .progress-custom { height: 8px; border-radius: 10px; background-color: #f1f5f9; margin-top: 5px; }
-    .progress-bar-custom { border-radius: 10px; background: linear-gradient(90deg, var(--bps-blue), #00b4db); }
-
-    .trend-bar { height: 10px; background: #f8fafc; border-radius: 4px; overflow: hidden; display: flex; align-items: center; }
-    .trend-fill { height: 100%; background: #198754; opacity: 0.6; border-radius: 4px; transition: width 0.5s ease; }
-
-    /* Table Styles */
-    .table-container { background: white; border-radius: 20px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
-    .table thead th {
-        background-color: #f8fafc; text-transform: uppercase; font-size: 0.7rem;
-        letter-spacing: 1px; font-weight: 700; color: #64748b; border: none; padding: 1.25rem 1rem;
-    }
-
-    .table tbody td { padding: 1.25rem 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; }
-
-    .badge-pill-custom { padding: 0.5rem 1rem; border-radius: 50px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; }
-    .status-akan-datang { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
-    .status-berjalan { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
-    .status-selesai { background: rgba(25, 135, 84, 0.1); color: #198754; }
-
-    .avatar-circle {
-        width: 38px; height: 38px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-        color: var(--bps-blue); font-weight: 700; display: flex; align-items: center; justify-content: center;
-        border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .animate-pulse-red { animation: pulse-red 2s infinite; }
-    @keyframes pulse-red {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-    }
-
-    .urgent-row { background-color: rgba(255, 193, 7, 0.05) !important; }
-
-    .pagination { margin-bottom: 0; gap: 4px; }
-    .pagination .page-link {
-        border-radius: 10px !important; padding: 6px 14px; font-size: 0.8rem; font-weight: 700;
-        color: var(--bps-blue); border: 1px solid #e2e8f0; transition: all 0.2s;
-    }
-    .pagination .page-item.active .page-link {
-        background: linear-gradient(135deg, var(--bps-blue) 0%, #007bff 100%);
-        border-color: transparent; color: white;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/dashboard.css') }}">
 
 <div class="container-fluid px-4 pb-5">
     {{-- Header Dashboard --}}
@@ -109,7 +27,7 @@
     {{-- BARIS 1: STATISTIK UTAMA --}}
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3 border-0">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up">
                 <div class="d-flex align-items-center">
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3"><i class="fas fa-user-friends"></i></div>
                     <div>
@@ -122,7 +40,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3 border-0">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up">
                 <div class="d-flex align-items-center">
                     <div class="stat-icon bg-info bg-opacity-10 text-info me-3"><i class="fas fa-layer-group"></i></div>
                     <div>
@@ -133,7 +51,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stat-card shadow-sm h-100 p-3 border-0">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up">
                 <div class="d-flex align-items-center">
                     <div class="stat-icon bg-success bg-opacity-10 text-success me-3"><i class="fas fa-clipboard-check"></i></div>
                     <div>
@@ -150,7 +68,7 @@
     <div class="row g-4 mb-4">
         {{-- Top Tim Teraktif --}}
         <div class="col-lg-6">
-            <div class="dashboard-panel">
+            <div class="dashboard-panel animate-up">
                 <h6 class="fw-bold text-dark mb-4"><i class="fas fa-trophy me-2 text-warning"></i>7 Tim Paling Aktif ({{ \Carbon\Carbon::parse(request('filter_bulan', date('Y-m')))->translatedFormat('F Y') }})</h6>
                 <div class="row">
                     @forelse($top_teams as $t_team)
@@ -176,7 +94,7 @@
 
         {{-- Skala Tugas Bulanan --}}
         <div class="col-lg-6">
-            <div class="dashboard-panel">
+            <div class="dashboard-panel animate-up">
                 <h6 class="fw-bold text-dark mb-4"><i class="fas fa-chart-bar me-2 text-success"></i>Tren Skala Tugas Tahun {{ date('Y') }}</h6>
                 <div class="row g-2">
                     @php $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']; @endphp
@@ -203,7 +121,7 @@
     @endif
 
     {{-- BARIS 3: TABEL AGENDA TERKINI --}}
-    <div class="card table-container shadow-sm overflow-hidden border-0">
+    <div class="card table-container shadow-sm overflow-hidden border-0 animate-up">
         <div class="card-header bg-white border-0 px-4 py-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>

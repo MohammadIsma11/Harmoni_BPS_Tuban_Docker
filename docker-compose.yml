@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # The Laravel app container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: harmoni-bps-tuban-app
+    container_name: harmoni_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+      - /var/www/bootstrap/cache
+    networks:
+      - harmoni-network
+    depends_on:
+      - redis
+      - db
+
+  # The Laravel queue worker container
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: harmoni-bps-tuban-app
+    container_name: harmoni_worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+      - /var/www/bootstrap/cache
+    networks:
+      - harmoni-network
+    depends_on:
+      - redis
+      - db
+
+  # The Nginx web server container
+  web:
+    image: nginx:alpine
+    container_name: harmoni_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - harmoni-network
+    depends_on:
+      - app
+
+  # The Redis container
+  redis:
+    image: redis:alpine
+    container_name: harmoni_redis
+    restart: unless-stopped
+    networks:
+      - harmoni-network
+
+  # The PostgreSQL Database container
+  db:
+    image: postgres:15-alpine
+    container_name: harmoni_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: harmoni
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: isma111004
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - harmoni-network
+
+networks:
+  harmoni-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

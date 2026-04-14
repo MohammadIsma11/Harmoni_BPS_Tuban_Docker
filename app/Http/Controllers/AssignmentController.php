@@ -158,8 +158,8 @@ public function assignmentStore(Request $request)
 
                 // 2. KIRIM NOTIFIKASI EMAIL
                 $userPegawai = User::find($pegawai_id);
-                if ($userPegawai && $userPegawai->email) {
-                    // Memicu pengiriman email melalui class AssignmentNotification
+                if ($userPegawai) {
+                    // Memicu pengiriman notifikasi (Email & Database)
                     $userPegawai->notify(new AssignmentNotification($agenda));
                 }
             }
@@ -252,7 +252,7 @@ public function assignmentUpdate(Request $request, $id)
             $statusApproval = (auth()->user()->role === 'Kepala') ? 'Approved' : 'Pending';
 
             foreach ($request->assigned_to as $pegawai_id) {
-                Agenda::create([
+                $newAgenda = Agenda::create([
                     'user_id'           => auth()->id(),
                     'assigned_to'       => $pegawai_id,
                     'activity_type_id'  => $type,
@@ -278,6 +278,12 @@ public function assignmentUpdate(Request $request, $id)
                     'approver_id'       => $request->approver_id,
                     'approved_at'       => ($statusApproval === 'Approved') ? now() : null,
                 ]);
+
+                // 2. KIRIM NOTIFIKASI (Email & Database)
+                $userPegawai = User::find($pegawai_id);
+                if ($userPegawai) {
+                    $userPegawai->notify(new AssignmentNotification($newAgenda)); // Perlu $newAgenda
+                }
             }
         });
 
@@ -467,8 +473,9 @@ public function downloadSPT(Request $request, $id)
                 ];
             });
 
-        // 3. Ambil Data CUTI
-        $leave_users = Absensi::where(function($q) use ($start, $end) {
+        // 3. Ambil Data CUTI (Filter berdasarkan status cuti yang valid)
+        $leave_users = Absensi::whereIn('status', ['Cuti', 'CT', 'CST1'])
+            ->where(function($q) use ($start, $end) {
                 $q->where('start_date', '<=', $end)->where('end_date', '>=', $start);
             })->pluck('user_id')->toArray();
 

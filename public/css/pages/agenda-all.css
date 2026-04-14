@@ -1,0 +1,55 @@
+:root {
+    --bps-blue: #0058a8;
+    --bps-light-blue: #eef6ff;
+}
+
+.filter-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+}
+
+.table-container {
+    background: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+.table thead th {
+    background-color: #f8fafc;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    font-weight: 800;
+    color: #64748b;
+    border: none;
+    padding: 1.25rem 1rem;
+}
+
+.table tbody td {
+    padding: 1.1rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.85rem;
+}
+
+/* Status Badge Styling agar ukuran sama rata */
+.status-badge {
+    width: 130px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.7rem;
+    gap: 6px;
+}
+
+.bg-info-subtle { background-color: #e0f7fa !important; color: #00838f !important; }
+.bg-primary-subtle { background-color: #eef6ff !important; color: #0058a8 !important; }
+.bg-success-subtle { background-color: #f0fdf4 !important; color: #16a34a !important; }
+.bg-warning-subtle { background-color: #fffbeb !important; color: #92400e !important; }
+
+.transition-row:hover { background-color: #f8fafc !important; }

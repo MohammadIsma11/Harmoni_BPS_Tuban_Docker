@@ -1,0 +1,129 @@
+:root {
+    --bps-blue: #0058a8;
+    --bps-sky: #eef6ff;
+}
+
+.guide-header {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    color: #1e293b;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.guide-header h1 { color: var(--bps-blue); }
+
+.guide-card {
+    border: none;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    height: 100%;
+    background: white;
+    border: 1px solid #f1f5f9;
+}
+
+.guide-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+    border-color: var(--bps-blue);
+}
+
+.guide-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--bps-sky);
+    color: var(--bps-blue);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+/* --- TABS CUSTOM --- */
+.nav-pills-custom .nav-link {
+    color: #64748b;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 12px 25px;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    font-size: 0.9rem;
+}
+
+.nav-pills-custom .nav-link.active {
+    background: white !important;
+    color: var(--bps-blue) !important;
+    border-color: var(--bps-blue);
+    box-shadow: 0 5px 15px rgba(0, 88, 168, 0.08);
+}
+
+.nav-pills-custom .nav-link i {
+    margin-right: 8px;
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    background: var(--bps-blue);
+    color: white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--bps-sky);
+    color: var(--bps-blue);
+    font-weight: 700;
+}
+
+.accordion-item {
+    border-radius: 15px !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-bottom: 15px;
+    overflow: hidden;
+    background: white;
+}
+
+.role-tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    padding: 5px 15px;
+    border-radius: 50px;
+}
+
+.guide-content-box {
+    background: #f8fafc;
+    border-radius: 15px;
+    padding: 20px;
+    border-left: 4px solid var(--bps-blue);
+}
+
+.info-highlight {
+    background: #fff9db;
+    border: 1px solid #ffec99;
+    color: #856404;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.btn-bps-blue {
+    background: var(--bps-blue);
+    color: white;
+}
+.btn-bps-blue:hover {
+    background: #004481;
+    color: white;
+}

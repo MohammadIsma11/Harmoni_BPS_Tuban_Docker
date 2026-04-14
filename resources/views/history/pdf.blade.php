@@ -134,34 +134,34 @@
         <tr>
             <td class="label">Tujuan / Lokasi</td>
             <td class="separator">:</td>
-            <td class="content">{{ $agenda->location }}</td>
+            <td class="content">{{ $report->lokasi_tujuan }}</td>
         </tr>
         <tr>
             <td class="label">Waktu Pelaksanaan</td>
             <td class="separator">:</td>
-            <td class="content">{{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('l, d F Y') }}</td>
+            <td class="content">{{ \Carbon\Carbon::parse($report->tanggal_lapor)->translatedFormat('l, d F Y') }}</td>
         </tr>
         <tr>
             <td class="label">Responden</td>
             <td class="separator">:</td>
-            <td class="content">{{ $agenda->responden ?? '-' }}</td>
+            <td class="content">{{ $details['responden'] ?? ($agenda->responden ?? '-') }}</td>
         </tr>
 
         {{-- BAGIAN LAPORAN DENGAN AUTO-LIST --}}
         <tr>
             <td class="label">Aktivitas yang Dilakukan</td>
             <td class="separator">:</td>
-            <td class="content">{!! formatNumberedList($agenda->aktivitas) !!}</td>
+            <td class="content">{!! formatNumberedList($details['aktivitas'] ?? $agenda->aktivitas) !!}</td>
         </tr>
         <tr>
             <td class="label">Permasalahan ditemui</td>
             <td class="separator">:</td>
-            <td class="content">{!! formatNumberedList($agenda->permasalahan) !!}</td>
+            <td class="content">{!! formatNumberedList($details['permasalahan'] ?? $agenda->permasalahan) !!}</td>
         </tr>
         <tr>
             <td class="label">Solusi / Langkah Antisipatif</td>
             <td class="separator">:</td>
-            <td class="content">{!! formatNumberedList($agenda->solusi_antisipasi) !!}</td>
+            <td class="content">{!! formatNumberedList($details['solusi_antisipasi'] ?? $agenda->solusi_antisipasi) !!}</td>
         </tr>
     </table>
 

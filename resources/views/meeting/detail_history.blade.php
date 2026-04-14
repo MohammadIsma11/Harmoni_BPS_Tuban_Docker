@@ -175,15 +175,5 @@
     </div>
 </div>
 
-<style>
-    @media (min-width: 992px) { .border-end-lg { border-right: 1px solid #dee2e6 !important; } }
-    .avatar-circle { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; flex-shrink: 0; }
-    .img-container { transition: all 0.3s ease; position: relative; }
-    .img-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 88, 168, 0.7); opacity: 0; transition: all 0.3s ease; backdrop-filter: blur(1px); }
-    .img-container:hover .img-overlay { opacity: 1; }
-    .list-group::-webkit-scrollbar { width: 4px; }
-    .list-group::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    .btn-xs { padding: 0.25rem 0.4rem; font-size: 0.7rem; }
-    .border-dashed { border-style: dashed !important; border-width: 2px !important; border-color: #cbd5e1 !important; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/meeting-detail-history.css') }}">
 @endsection

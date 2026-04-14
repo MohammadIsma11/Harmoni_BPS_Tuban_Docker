@@ -109,8 +109,5 @@
     </div>
 </div>
 
-<style>
-    .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .btn-outline-danger:hover, .btn-outline-info:hover { color: white !important; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/manajemen-laporan-pengawasan.css') }}">
 @endsection

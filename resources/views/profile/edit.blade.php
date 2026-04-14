@@ -197,18 +197,5 @@
     </div>
 </div>
 
-<style>
-    .btn-check:checked + .btn-outline-light {
-        background-color: #fff !important;
-        border-color: #0058a8 !important;
-        box-shadow: 0 8px 20px rgba(0, 88, 168, 0.12) !important;
-        transform: translateY(-2px);
-    }
-    .btn-check:checked + .btn-outline-light .fw-bold { color: #0058a8 !important; }
-    .btn-check:checked + .btn-outline-light .icon-box { background-color: #0058a8 !important; color: #fff !important; }
-    .form-check-input:checked { background-color: #dc3545 !important; border-color: #dc3545 !important; }
-    .btn-outline-light { border-color: #f1f5f9 !important; transition: all 0.3s ease; }
-    .form-control:focus { background-color: #fff !important; box-shadow: 0 0 0 4px rgba(0, 88, 168, 0.1) !important; border: 1px solid #0058a8 !important; }
-    .shadow-xs { box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/profile-edit.css') }}">
 @endsection

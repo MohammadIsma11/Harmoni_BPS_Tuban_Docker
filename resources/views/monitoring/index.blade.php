@@ -14,44 +14,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    :root {
-        --bps-blue: #0058a8;
-        --grid-border: #f1f5f9;
-        --weekend-bg: #fff5f5;
-    }
-
-    .monitoring-card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); background: white; }
-    .table-responsive { border-radius: 15px; overflow: auto; max-height: 700px; }
-    .table thead th { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 12px 8px; vertical-align: middle; z-index: 100; }
-    
-    .sticky-name-col { 
-        position: sticky; left: 0; background: white !important; z-index: 50; 
-        min-width: 260px; border-right: 2px solid #e2e8f0 !important;
-        box-shadow: 5px 0 10px rgba(0,0,0,0.02);
-    }
-
-    .day-cell { min-width: 50px; height: 65px; padding: 0 !important; position: relative; border-right: 1px solid var(--grid-border); }
-    .weekend-cell { background-color: var(--weekend-bg) !important; }
-    .today-cell { background-color: rgba(0, 88, 168, 0.05) !important; border-bottom: 2px solid var(--bps-blue) !important; }
-
-    .agenda-pill {
-        position: absolute; top: 15%; left: 5%; right: 5%; bottom: 15%;
-        border-radius: 10px; cursor: pointer; display: flex; align-items: center;
-        justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 5; color: white;
-    }
-    .agenda-pill:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
-
-    /* WARNA KATEGORI */
-    .pill-tugas { background: linear-gradient(135deg, #0058a8, #007bff); }
-    .pill-rapat { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .pill-dinas { background: linear-gradient(135deg, #8b5cf6, #6d28d9); } /* UNGU UNTUK DINAS LUAR */
-    .pill-selesai { background: linear-gradient(135deg, #10b981, #059669) !important; }
-
-    .view-filter-btn { border-radius: 10px; font-weight: 700; font-size: 0.75rem; padding: 8px 16px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
-    .view-filter-btn.active { background: var(--bps-blue); color: #fff; border-color: var(--bps-blue); }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/monitoring-index.css') }}">
 
 <div class="container-fluid px-4">
     <div class="card monitoring-card shadow-sm mb-4">
@@ -192,36 +155,5 @@
 </div>
 
 {{-- Script tetap sama --}}
-<script>
-    function showDetail(title, lokasi, pegawai, status, jenis) {
-        Swal.fire({
-            title: `<div class="mb-2 small text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing:1px;">Rincian Agenda</div><div class="px-3 text-primary">${title}</div>`,
-            html: `
-                <div class="text-start border-top pt-3 mx-2">
-                    <div class="mb-3 d-flex align-items-center p-2 bg-light rounded-3">
-                        <div class="bg-white p-2 rounded-2 me-3 shadow-sm"><i class="fas fa-users-viewfinder text-primary"></i></div>
-                        <div><small class="text-muted d-block">Asal Penugasan</small><span class="fw-bold text-dark">${jenis}</span></div>
-                    </div>
-                    <div class="mb-3 d-flex align-items-center p-2 bg-light rounded-3">
-                        <div class="bg-white p-2 rounded-2 me-3 shadow-sm"><i class="fas fa-user-check text-success"></i></div>
-                        <div><small class="text-muted d-block">Personil</small><span class="fw-bold text-dark">${pegawai}</span></div>
-                    </div>
-                    <div class="mb-3 d-flex align-items-center p-2 bg-light rounded-3">
-                        <div class="bg-white p-2 rounded-2 me-3 shadow-sm"><i class="fas fa-map-pin text-danger"></i></div>
-                        <div><small class="text-muted d-block">Lokasi/Ruang</small><span class="fw-bold text-dark">${lokasi}</span></div>
-                    </div>
-                    <div class="mb-0 d-flex align-items-center p-2 bg-light rounded-3">
-                        <div class="bg-white p-2 rounded-2 me-3 shadow-sm"><i class="fas fa-info-circle text-info"></i></div>
-                        <div><small class="text-muted d-block">Status</small>
-                            <span class="badge ${status == 'Selesai' ? 'bg-success' : 'bg-warning text-dark'} border-0 px-3 mt-1 fw-bold shadow-sm">${status}</span>
-                        </div>
-                    </div>
-                </div>
-            `,
-            confirmButtonText: 'Tutup',
-            confirmButtonColor: '#0058a8',
-            customClass: { popup: 'rounded-4 shadow-lg border-0' }
-        });
-    }
-</script>
+    <script src="{{ asset('js/pages/monitoring-index.js') }}"></script>
 @endsection

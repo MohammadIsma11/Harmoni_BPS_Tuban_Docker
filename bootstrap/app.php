@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'cek.cuti' => \App\Http\Middleware\CheckStatusCuti::class,
         ]);
 
+        // Trust all proxies (penting saat menggunakan Nginx/Docker/Cloudflare)
+        $middleware->trustProxies(at: '*');
+
         // Opsional: Jika ingin mengarahkan user yang belum login ke halaman tertentu
         $middleware->redirectTo(
             guests: '/',

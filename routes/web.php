@@ -5,7 +5,7 @@ use App\Http\Controllers\{
     AuthController, DashboardController, ProfileController, 
     MeetingController, TaskController, RekapController, 
     AnggotaController, AssignmentController, AbsensiController, 
-    HistoryController, SuperAccessController
+    HistoryController, SuperAccessController, NotificationController
 };
 
 /*
@@ -32,6 +32,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/super-access', [SuperAccessController::class, 'index'])->name('super.access.index');
     Route::get('/panduan', [DashboardController::class, 'panduanIndex'])->name('panduan.index');
     Route::get('/assignment/{id}/download-spt', [AssignmentController::class, 'downloadSPT'])->name('assignment.download-spt');
+
+    /* --- Notifications --- */
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+        Route::get('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    });
 
     Route::prefix('history')->group(function () {
     Route::get('/', [HistoryController::class, 'historyIndex'])->name('history.index');

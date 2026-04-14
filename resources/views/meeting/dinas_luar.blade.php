@@ -138,77 +138,9 @@
 </div>
 
 {{-- Style tetap sama --}}
-<style>
-    .preview-img-wrapper { height: 75px; width: 100%; overflow: hidden; border-radius: 10px; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background: #eee; }
-    .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-    .btn-success { background: linear-gradient(135deg, #15803d 0%, #22c55e 100%); transition: all 0.3s ease; }
-    .btn-success:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(21, 128, 61, 0.3) !important; }
-    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
-    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/meeting-dinas-luar.css') }}">
 
 {{-- Script SweetAlert dan Preview tetap sama --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    const form = document.querySelector('#formDinasLuar');
-    
-    // Fungsi Validasi Ukuran File
-    function validateSize(input, maxSizeMB, typeName) {
-        const files = Array.from(input.files);
-        const maxSize = maxSizeMB * 1024 * 1024;
-        let oversized = [];
-
-        files.forEach(file => {
-            if (file.size > maxSize) oversized.push(file.name);
-        });
-
-        if (oversized.length > 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'File ' + typeName + ' Terlalu Besar',
-                html: `Batas maksimal adalah ${maxSizeMB}MB.<br><small class="text-danger">${oversized.join(', ')}</small>`,
-                confirmButtonColor: '#15803d'
-            });
-            input.value = ''; // Reset
-            return false;
-        }
-        return true;
-    }
-
-    // Listener File Laporan (20MB)
-    document.querySelector('#hasil_rapat_file').addEventListener('change', function() {
-        validateSize(this, 20, 'Laporan');
-    });
-
-    // Listener Foto Dokumentasi (20MB) & Preview
-    document.querySelector('#foto_dokumentasi').addEventListener('change', function() {
-        if(validateSize(this, 20, 'Foto')) {
-            const previewContainer = document.querySelector('#image-preview-container');
-            previewContainer.innerHTML = '';
-            Array.from(this.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const col = document.createElement('div');
-                    col.className = 'col-4';
-                    col.innerHTML = `<div class="preview-img-wrapper"><img src="${e.target.result}"></div>`;
-                    previewContainer.appendChild(col);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-    });
-
-    // Loading saat submit
-    form.addEventListener('submit', function() {
-        if (this.checkValidity()) {
-            Swal.fire({
-                title: 'Mengirim Laporan Dinas...',
-                text: 'Harap tunggu, data dan file sedang diunggah.',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => Swal.showLoading()
-            });
-        }
-    });
-</script>
+    <script src="{{ asset('js/pages/meeting-dinas-luar.js') }}"></script>
 @endsection

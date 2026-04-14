@@ -22,33 +22,32 @@ class HistoryController extends Controller
     {
         $user = auth()->user();
         
-        $query = Agenda::with(['assignee', 'activityType', 'creator', 'assignee.team'])
-                    ->where('activity_type_id', 1) 
-                    ->where('status_laporan', 'Selesai');
+        // Pivot ke AssignmentReport agar muncul per translok/laporan
+        $query = \App\Models\AssignmentReport::with(['agenda', 'agenda.assignee', 'agenda.creator', 'agenda.assignee.team'])
+                    ->whereHas('agenda', function($q) {
+                        $q->where('activity_type_id', 1); // Khusus Lapangan
+                    });
 
         // Filter berdasarkan Role
         if ($user->role == 'Katim') {
-            $query->where(function($q) use ($user) {
+            $query->whereHas('agenda', function($q) use ($user) {
                 $q->where('assigned_to', $user->id)
                   ->orWhere('user_id', $user->id);
             });
         } elseif ($user->role == 'Pegawai') {
-            $query->where('assigned_to', $user->id);
+            $query->where('user_id', $user->id);
         }
 
         // Filter Pencarian
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->whereHas('agenda', function($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('location', 'like', '%' . $search . '%')
-                  ->orWhereHas('assignee', function($userQuery) use ($search) {
-                      $userQuery->where('nama_lengkap', 'like', '%' . $search . '%');
-                  });
+                  ->orWhere('lokasi_tujuan', 'like', '%' . $search . '%');
             });
         }
 
-        $riwayat = $query->latest('updated_at')->paginate(10);
+        $riwayat = $query->latest()->paginate(10);
         return view('history.index', compact('riwayat'));
     }
 
@@ -59,29 +58,37 @@ class HistoryController extends Controller
     */
     public function historyDetail($id)
     {
-        $agenda = Agenda::with(['assignee', 'activityType', 'photos'])->findOrFail($id);
+        // $id adalah ID AssignmentReport
+        $report = \App\Models\AssignmentReport::with(['agenda', 'agenda.assignee', 'agenda.creator', 'agenda.photos'])->findOrFail($id);
+        $agenda = $report->agenda;
 
         if (!$this->canAccess($agenda)) {
             return redirect()->route('history.index')->with('error', 'Akses ditolak.');
         }
 
-        return view('history.detail', compact('agenda'));
+        // Parse isi_laporan dari JSON
+        $details = json_decode($report->isi_laporan, true);
+
+        return view('history.detail', compact('report', 'agenda', 'details'));
     }
 
     public function historyExport($id) 
     {
         Carbon::setLocale('id');
-        $agenda = Agenda::with(['assignee.team', 'activityType', 'photos'])->findOrFail($id);
+        $report = \App\Models\AssignmentReport::with(['agenda', 'agenda.assignee.team', 'agenda.creator', 'agenda.photos'])->findOrFail($id);
+        $agenda = $report->agenda;
         
         if (!$this->canAccess($agenda)) {
             return redirect()->route('history.index')->with('error', 'Akses ditolak.');
         }
 
+        $details = json_decode($report->isi_laporan, true);
         $kepala = User::where('role', 'Kepala')->first();
-        $pdf = Pdf::loadView('history.pdf', compact('agenda', 'kepala'))
+        
+        $pdf = Pdf::loadView('history.pdf', compact('report', 'agenda', 'details', 'kepala'))
                   ->setPaper('a4', 'portrait');
 
-        return $pdf->stream('Laporan_Lapangan_' . $agenda->id . '.pdf');
+        return $pdf->stream('Laporan_Translok_' . $report->id . '.pdf');
     }
 
     /*
@@ -91,24 +98,30 @@ class HistoryController extends Controller
     */
     public function historyEdit($id)
     {
-        $agenda = Agenda::with(['activityType', 'photos'])->findOrFail($id);
+        // $id adalah ID AssignmentReport
+        $report = \App\Models\AssignmentReport::with(['agenda', 'agenda.activityType', 'agenda.photos'])->findOrFail($id);
+        $agenda = $report->agenda;
 
         if (!$this->canAccess($agenda)) {
             return redirect()->route('history.index')->with('error', 'Akses ditolak.');
         }
 
-        return view('history.edit', compact('agenda'));
+        $details = json_decode($report->isi_laporan, true);
+
+        return view('history.edit', compact('report', 'agenda', 'details'));
     }
 
     public function historyUpdate(Request $request, $id)
     {
-        $agenda = Agenda::findOrFail($id);
+        // $id adalah ID AssignmentReport
+        $report = \App\Models\AssignmentReport::with('agenda')->findOrFail($id);
+        $agenda = $report->agenda;
 
         if (!$this->canAccess($agenda)) {
             return redirect()->route('history.index')->with('error', 'Akses ditolak.');
         }
 
-            $request->validate([
+        $request->validate([
             'kecamatan' => 'required',
             'desa' => 'required',
             'tanggal_pelaksanaan' => 'required|date',
@@ -122,87 +135,101 @@ class HistoryController extends Controller
         try {
             DB::beginTransaction();
             
-            // Gabung lokasi
             $lokasiLengkap = "Desa " . $request->desa . ", Kec. " . $request->kecamatan;
+            $reportData = [
+                'responden'         => $request->responden,
+                'aktivitas'         => $request->aktivitas,
+                'permasalahan'      => $request->permasalahan,
+                'solusi_antisipasi' => $request->solusi_antisipasi
+            ];
 
-            // Update data (Pastikan nama kolom database adalah tanggal_riil)
-            $agenda->update([
-                'location' => $lokasiLengkap,
-                'tanggal_pelaksanaan' => $request->tanggal_pelaksanaan, // <--- SYNC INI
-                'responden' => $request->responden,
-                'aktivitas' => $request->aktivitas,
-                'permasalahan' => $request->permasalahan,
-                'solusi_antisipasi' => $request->solusi_antisipasi,
+            // 1. Update Report
+            $report->update([
+                'lokasi_tujuan' => $lokasiLengkap,
+                'tanggal_lapor' => $request->tanggal_pelaksanaan,
+                'isi_laporan'   => json_encode($reportData),
             ]);
 
-            // Ganti Foto jika ada file baru
+            // 2. Update Agenda snapshot (selalu ambil yang terbaru dari laporan)
+            $agenda->update([
+                'location'            => $lokasiLengkap,
+                'tanggal_pelaksanaan' => $request->tanggal_pelaksanaan,
+                'responden'           => $request->responden,
+                'aktivitas'           => $request->aktivitas,
+                'permasalahan'        => $request->permasalahan,
+                'solusi_antisipasi'   => $request->solusi_antisipasi,
+            ]);
+
+            // 3. Update Foto (Jika ada file baru)
             if ($request->hasFile('fotos')) {
-                // Hapus yang lama dulu
+                // Hapus yang lama di agenda_photos untuk agenda ini 
+                // (Catatan: ini akan menghapus SEMUA dokumentasi agenda tersebut)
                 foreach ($agenda->photos as $oldPhoto) {
                     \Storage::disk('public')->delete($oldPhoto->photo_path);
                     $oldPhoto->delete();
                 }
 
-                // Simpan yang baru
                 foreach ($request->file('fotos') as $foto) {
-                    $path = $foto->store('dokumentasi', 'public');
-                    AgendaPhoto::create([
-                        'agenda_id' => $agenda->id, 
+                    $path = $foto->store('dokumentasi_tugas', 'public');
+                    \App\Models\AgendaPhoto::create([
+                        'agenda_id'  => $agenda->id, 
                         'photo_path' => $path
                     ]);
                 }
             }
 
             DB::commit();
-            return redirect()->route('history.index')->with('success', 'Laporan diperbarui!');
+            return redirect()->route('history.index')->with('success', 'Laporan translok diperbarui!');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Gagal update: ' . $e->getMessage());
         }
     }
 
-       public function taskDestroy($id)
-{
-    $agenda = Agenda::with('photos')->findOrFail($id);
-    
-    // Keamanan: Cek apakah user boleh menghapus laporan ini
-    if (!$this->canAccess($agenda)) {
-        abort(403, 'Akses hapus laporan ditolak.');
-    }
-
-    try {
-        DB::beginTransaction();
-
-        // 1. Hapus Foto dari Storage & Database
-        foreach ($agenda->photos as $photo) {
-            if (\Storage::disk('public')->exists($photo->photo_path)) {
-                \Storage::disk('public')->delete($photo->photo_path);
-            }
-            $photo->delete();
+    public function taskDestroy($id)
+    {
+        // $id adalah ID AssignmentReport
+        $report = \App\Models\AssignmentReport::with('agenda')->findOrFail($id);
+        $agenda = $report->agenda;
+        
+        if (!$this->canAccess($agenda)) {
+            abort(403, 'Akses hapus laporan ditolak.');
         }
 
-        // 2. Opsi A: Hapus Total Baris Agenda
-        $agenda->delete(); 
-        
-        // ATAU Opsi B: Reset ke Status 'Pending' (jika ingin tugasnya muncul lagi di daftar tugas)
-        /*
-        $agenda->update([
-            'status_laporan' => 'Pending',
-            'tanggal_riil' => null,
-            'responden' => null,
-            'aktivitas' => null,
-            // ... reset field lainnya
-        ]);
-        */
+        try {
+            DB::beginTransaction();
 
-        DB::commit();
-        return redirect()->route('history.index')->with('success', 'Laporan berhasil dihapus.');
+            // 1. Hapus Report Terkait
+            $report->delete();
 
-    } catch (\Exception $e) {
-        DB::rollback();
-        return back()->with('error', 'Gagal hapus: ' . $e->getMessage());
+            // 2. Jika laporan habis, maka agenda dikembalikan ke Pending atau dihapus?
+            // User mau tugas balik ke Daftar Tugas jika belum selesai.
+            $reportCount = $agenda->reports()->count();
+            if ($reportCount == 0) {
+                // Hapus juga foto jika ini laporan terakhir? 
+                foreach ($agenda->photos as $photo) {
+                    if (\Storage::disk('public')->exists($photo->photo_path)) {
+                        \Storage::disk('public')->delete($photo->photo_path);
+                    }
+                    $photo->delete();
+                }
+                $agenda->update(['status_laporan' => 'Pending']);
+            } else {
+                // Masih ada laporan lain, biarkan tetap status sekarang? 
+                // Tapi jika report target > count, kembalikan ke Pending.
+                if ($reportCount < ($agenda->report_target ?? 1)) {
+                    $agenda->update(['status_laporan' => 'Pending']);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('history.index')->with('success', 'Laporan translok berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Gagal hapus: ' . $e->getMessage());
+        }
     }
-}
 
     public function exportRekapPDF()
     {

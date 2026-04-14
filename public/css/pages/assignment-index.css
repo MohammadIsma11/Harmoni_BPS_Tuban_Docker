@@ -1,0 +1,34 @@
+:root { --bps-blue: #0058a8; --bps-text: #1e293b; }
+.table-container { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); overflow: hidden; border: 1px solid #f1f5f9; }
+
+.table thead th { 
+    background: #f8fafc; color: #64748b; font-size: 0.75rem; 
+    text-transform: uppercase; letter-spacing: 1px; padding: 20px 15px; border-bottom: 1px solid #f1f5f9;
+}
+
+.table tbody td { padding: 18px 15px; border-bottom: 1px solid #f8fafc; }
+
+.btn-action { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; transition: 0.3s; border: none; text-decoration: none; }
+.btn-edit { background: #eff6ff; color: #2563eb; }
+.btn-edit:hover { background: #2563eb; color: white; transform: translateY(-2px); }
+.btn-delete { background: #fff1f2; color: #e11d48; }
+.btn-delete:hover { background: #e11d48; color: white; transform: translateY(-2px); }
+
+.petugas-stack { display: flex; align-items: center; }
+.avatar-stack-item { 
+    width: 32px; height: 32px; border-radius: 10px; background: var(--bps-blue); 
+    color: white; font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; border: 2px solid white; margin-left: -12px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+.avatar-stack-item:first-child { margin-left: 0; }
+
+.activity-icon-box {
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    border-radius: 14px; flex-shrink: 0; font-size: 1.1rem;
+}
+
+.badge-jadwal {
+    padding: 8px 16px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;
+    display: inline-flex; align-items: center;
+}

@@ -3,52 +3,7 @@
 <head>
     <title>{{ ($agenda->activity_type_id == 1) ? 'SPT' : 'Memorandum' }} - {{ $agenda->nomor_surat_tugas }}</title>
     <style>
-        @page { margin: 1.5cm 2cm; }
-        body { font-family: 'Arial', sans-serif; font-size: 10.5pt; line-height: 1.5; color: #000; }
-        
-        /* HEADER CENTERED */
-        .header { text-align: center; margin-bottom: 20px; width: 100%; }
-        .logo-bps { width: 65px; display: block; margin: 0 auto 5px auto; }
-        .kop-text { font-weight: bold; text-transform: uppercase; line-height: 1.2; }
-        .kop-bps { font-size: 12pt; }
-        .kop-kab { font-size: 13pt; }
-        
-        .title-section { text-align: center; margin-top: 10px; margin-bottom: 20px; }
-        .title-spt { font-size: 11pt; font-weight: bold; text-decoration: underline; }
-        
-        /* TABLE MAIN FIX */
-        .table-main { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 5px; 
-            table-layout: fixed; 
-        }
-        .table-main td { 
-            vertical-align: top; 
-            padding: 4px 0; 
-            word-wrap: break-word; 
-        }
-
-        .col-label { width: 18%; } 
-        .col-sep   { width: 3%; text-align: center; } 
-        .col-isi   { width: 79%; text-align: justify; }
-
-        .list-poin { margin: 0; padding-left: 17px; }
-        .list-poin li { margin-bottom: 3px; }
-
-        /* FOOTER TTD */
-        .footer { margin-top: 30px; width: 100%; }
-        .ttd-wrapper { float: right; width: 260px; text-align: center; }
-        .ttd-image { height: 80px; margin: 5px 0; }
-        
-        /* TABLE KHUSUS MEMO */
-        .table-memo { width: 100%; border: 1px solid #000; border-collapse: collapse; margin-top: 10px; }
-        .table-memo th, .table-memo td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 10pt; }
-        .table-memo th { background-color: #f2f2f2; }
-
-        .page-break { page-break-after: always; }
-        .bold { font-weight: bold; }
-        .uppercase { text-transform: uppercase; }
+        {!! file_get_contents(resource_path('css/pages/pdf-spt.css')) !!}
     </style>
 </head>
 <body>

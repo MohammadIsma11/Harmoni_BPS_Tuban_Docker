@@ -5,70 +5,19 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    :root {
-        --bps-blue: #0058a8;
-        --bps-light-blue: #eef6ff;
-    }
-
-    .filter-card {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.02);
-    }
-
-    .table-container {
-        background: white;
-        border-radius: 20px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-    }
-
-    .table thead th {
-        background-color: #f8fafc;
-        text-transform: uppercase;
-        font-size: 0.7rem;
-        letter-spacing: 1px;
-        font-weight: 800;
-        color: #64748b;
-        border: none;
-        padding: 1.25rem 1rem;
-    }
-
-    .table tbody td {
-        padding: 1.1rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        color: #334155;
-        font-size: 0.85rem;
-    }
-
-    /* Status Badge Styling agar ukuran sama rata */
-    .status-badge {
-        width: 130px;
-        height: 30px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.7rem;
-        gap: 6px;
-    }
-
-    .bg-info-subtle { background-color: #e0f7fa !important; color: #00838f !important; }
-    .bg-primary-subtle { background-color: #eef6ff !important; color: #0058a8 !important; }
-    .bg-success-subtle { background-color: #f0fdf4 !important; color: #16a34a !important; }
-    .bg-warning-subtle { background-color: #fffbeb !important; color: #92400e !important; }
-
-    .transition-row:hover { background-color: #f8fafc !important; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/agenda-all.css') }}">
 
 <div class="container-fluid px-4 pb-5">
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold text-dark mb-1">Semua Agenda & Tugas</h4>
-            <p class="text-muted small mb-0">Monitoring seluruh aktivitas pengawasan lapangan dan rapat dinas.</p>
+        <div class="d-flex align-items-center">
+            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill me-3 px-3 shadow-sm">
+                <i class="fas fa-arrow-left me-1"></i> Kembali
+            </a>
+            <div>
+                <h4 class="fw-bold text-dark mb-1">Semua Agenda & Tugas</h4>
+                <p class="text-muted small mb-0">Monitoring seluruh aktivitas pengawasan lapangan dan rapat dinas.</p>
+            </div>
         </div>
         <div class="bg-white p-2 px-3 rounded-4 shadow-sm border border-primary border-opacity-10">
             <i class="fas fa-list-check text-primary me-2"></i>
@@ -91,6 +40,7 @@
                         <option value="">-- Semua Tipe --</option>
                         <option value="1" {{ request('type') == '1' ? 'selected' : '' }}>Tugas Lapangan</option>
                         <option value="2" {{ request('type') == '2' ? 'selected' : '' }}>Dinas Rapat</option>
+                        <option value="3" {{ request('type') == '3' ? 'selected' : '' }}>Dinas Luar</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -127,7 +77,7 @@
                     <tr class="transition-row">
                         <td class="ps-4">
                             <div class="fw-bold text-dark mb-0">
-                                @if($a->activity_type_id == 1) {{-- Tugas Lapangan --}}
+                                @if($a->activity_type_id == 1 || $a->activity_type_id == 3) {{-- Tugas Lapangan atau Dinas Luar --}}
                                     @if($a->status_laporan == 'Selesai')
                                         {{-- Selesai: Tampilkan satu tanggal saja --}}
                                         {{ \Carbon\Carbon::parse($a->end_date)->translatedFormat('d M Y') }}
@@ -148,11 +98,22 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark mb-1">{{ $a->title }}</div>
-                            <small class="text-muted"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $a->location }}</small>
+                            @if($a->status_laporan == 'Selesai')
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i> 
+                                    @if($a->activity_type_id == 2 && empty($a->location))
+                                        Ruang Rapat
+                                    @else
+                                        {{ $a->location ?? '-' }}
+                                    @endif
+                                </small>
+                            @endif
                         </td>
                         <td>
                             @if($a->activity_type_id == 1)
                                 <span class="badge bg-info-subtle border border-info border-opacity-25 rounded-pill px-3">Lapangan</span>
+                            @elseif($a->activity_type_id == 3)
+                                <span class="badge bg-warning-subtle border border-warning border-opacity-25 rounded-pill px-3 text-warning-emphasis">Dinas Luar</span>
                             @else
                                 <span class="badge bg-primary-subtle border border-primary border-opacity-25 rounded-pill px-3">Rapat</span>
                             @endif

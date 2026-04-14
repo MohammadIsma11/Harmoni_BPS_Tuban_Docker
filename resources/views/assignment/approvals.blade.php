@@ -187,16 +187,5 @@
     </div>
 </div>
 
-<style>
-    .transition-row { transition: all 0.2s ease; }
-    .transition-row:hover { background-color: #f8fafc !important; }
-    .table thead th {
-        font-size: 0.7rem;
-        letter-spacing: 0.5px;
-        font-weight: 700;
-        color: #64748b;
-    }
-    .italic { font-style: italic; }
-    .avatar-mini { border: 1px solid rgba(0,0,0,0.05); }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/assignment-approvals.css') }}">
 @endsection

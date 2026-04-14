@@ -81,12 +81,16 @@
         <td>
             <div class="fw-bold text-primary mb-1">{{ $meeting->title }}</div>
             
-            {{-- LOGIKA LOKASI: Hanya tampil jika di rute Dinas Luar --}}
-            @if(request()->routeIs('meeting.history.dinas'))
-                <small class="text-muted">
-                    <i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $meeting->location }}
-                </small>
-            @endif
+            <small class="text-muted">
+                <i class="fas fa-map-marker-alt me-1 text-danger"></i> 
+                @php
+                    $locH = $meeting->location;
+                    if ($meeting->activity_type_id == 2 && empty($locH)) {
+                        $locH = 'Ruang Rapat';
+                    }
+                @endphp
+                {{ $locH ?? '-' }}
+            </small>
         </td>
         <td>
             <div class="d-flex align-items-center">
@@ -159,59 +163,12 @@
     </div>
 </div>
 
-<style>
-    .avatar-sm-table {
-        width: 32px; height: 32px; border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.75rem; font-weight: 800;
-    }
-    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .table thead th { font-size: 0.7rem; letter-spacing: 0.5px; font-weight: 700; color: #64748b; }
-    .btn-light:hover { background: #fff !important; border-color: #0058a8 !important; }
-    tr { transition: all 0.2s; }
-    tr:hover { background-color: rgba(0, 88, 168, 0.02) !important; }
-    .border-dashed { border-style: dashed !important; border-width: 2px !important; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/meeting-history.css') }}">
 
 {{-- SweetAlert2 & JQuery --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {{-- Di bagian paling bawah history.blade.php --}}
 @push('scripts')
-<script>
-    // Gunakan document on click agar JQuery tetap bisa deteksi tombol meski halaman baru dimuat
-    $(document).on('click', '.btn-delete-history', function(e) {
-        e.preventDefault();
-        
-        // Ambil data id dan title dari tombol yang diklik
-        const id = $(this).data('id');
-        const title = $(this).data('title');
-        
-        Swal.fire({
-            title: 'Hapus Riwayat?',
-            text: "Seluruh data rapat '" + title + "' akan dihapus permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            customClass: {
-                popup: 'rounded-4'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Sedang Menghapus...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                // Submit form yang sesuai dengan ID tombol tadi
-                $('#delete-form-' + id).submit();
-            }
-        });
-    });
-</script>
+    <script src="{{ asset('js/pages/meeting-history.js') }}"></script>
 @endpush
 @endsection

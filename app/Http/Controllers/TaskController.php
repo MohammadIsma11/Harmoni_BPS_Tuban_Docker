@@ -126,36 +126,69 @@ class TaskController extends Controller
 
         DB::beginTransaction();
 
-        // Logika Lokasi
+        // 1. Logika Lokasi
         $lokasiLengkap = "Desa " . $request->desa . ", Kec. " . $request->kecamatan;
 
-        // Upload Foto
+        // 2. Upload Foto & Simpan ke AgendaPhoto
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $foto) {
                 if ($foto->isValid()) {
                     $path = $foto->store('dokumentasi_tugas', 'public');
                     \App\Models\AgendaPhoto::create([
-                        'agenda_id' => $agenda->id, 
+                        'agenda_id'  => $agenda->id, 
                         'photo_path' => $path
                     ]);
                 }
             }
         }
 
-        // Update Data Agenda
-        $agenda->update([
-            'location' => $lokasiLengkap,
-            'tanggal_pelaksanaan' => $tglPilihan,
-            'responden' => $request->responden,
-            'aktivitas' => $request->aktivitas,
-            'permasalahan' => $request->permasalahan,
-            'solusi_antisipasi' => $request->solusi_antisipasi,
-            'status_laporan' => 'Selesai',
-            'updated_at' => now()
+        // 3. Simpan ke AssignmentReport (Track Translok)
+        $reportData = [
+            'responden'         => $request->responden,
+            'aktivitas'         => $request->aktivitas,
+            'permasalahan'      => $request->permasalahan,
+            'solusi_antisipasi' => $request->solusi_antisipasi
+        ];
+
+        \App\Models\AssignmentReport::create([
+            'agenda_id'         => $agenda->id,
+            'user_id'           => $userId,
+            'lokasi_tujuan'     => $lokasiLengkap,
+            'tanggal_lapor'     => $tglPilihan,
+            'isi_laporan'       => json_encode($reportData),
+            'status_verifikasi' => 'Verified'
         ]);
 
+        // 4. Update Data Agenda (Snapshot Laporan Terakhir)
+        $updateData = [
+            'location'            => $lokasiLengkap,
+            'tanggal_pelaksanaan' => $tglPilihan,
+            'responden'           => $request->responden,
+            'aktivitas'           => $request->aktivitas,
+            'permasalahan'        => $request->permasalahan,
+            'solusi_antisipasi'   => $request->solusi_antisipasi,
+            'updated_at'          => now()
+        ];
+
+        // 5. Cek Progres Translok
+        $currentReports = \App\Models\AssignmentReport::where('agenda_id', $agenda->id)->count();
+        $target = $agenda->report_target ?? 1;
+
+        if ($currentReports >= $target) {
+            $updateData['status_laporan'] = 'Selesai';
+        } else {
+            $updateData['status_laporan'] = 'Pending'; // Tetap muncul di daftar tugas
+        }
+
+        $agenda->update($updateData);
+
         DB::commit();
-        return redirect()->route('history.index')->with('success', 'Laporan tugas berhasil dikirim!');
+
+        if ($currentReports >= $target) {
+            return redirect()->route('history.index')->with('success', "Tugas Selesai! Seluruh translok ($currentReports/$target) telah dilaporkan.");
+        } else {
+            return redirect()->route('task.index')->with('success', "Laporan translok ke-$currentReports berhasil dikirim. Masih kurang " . ($target - $currentReports) . " translok lagi.");
+        }
 
     } catch (\Exception $e) {
         DB::rollback();

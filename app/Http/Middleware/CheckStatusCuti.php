@@ -29,7 +29,7 @@ class CheckStatusCuti
         // 2. Cek apakah hari ini user sedang cuti di tabel Absensi
         // Kita gunakan query builder yang lebih clean
         $isCuti = Absensi::where('user_id', $user->id)
-            ->where('status', 'Cuti')
+            ->whereIn('status', ['Cuti', 'CT', 'CST1'])
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
             ->exists();

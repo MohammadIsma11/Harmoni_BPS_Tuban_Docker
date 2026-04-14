@@ -140,40 +140,5 @@
     </div>
 </div>
 
-<style>
-    /* Status Badge Styling */
-    .status-badge {
-        width: 110px; height: 30px; display: inline-flex; align-items: center; justify-content: center;
-        font-size: 0.7rem !important; padding: 0 !important;
-    }
-
-    /* Type Badge Styling (Green & Blue) */
-    .bg-green-soft { background-color: #f0fdf4; color: #15803d; }
-    .border-green-soft { border: 1px solid #bcf0da; }
-    
-    .bg-blue-soft { background-color: #eff6ff; color: #1d4ed8; }
-    .border-blue-soft { border: 1px solid #bfdbfe; }
-
-    .badge { font-size: 0.6rem; letter-spacing: 0.5px; padding: 5px 10px; border-radius: 6px; font-weight: 700; }
-
-    /* Button Styling */
-    .btn-custom-action {
-        width: 90px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
-        font-size: 0.75rem !important; border-radius: 8px !important; padding: 0 !important; white-space: nowrap;
-    }
-
-    .bg-success-subtle { background-color: #f0fdf4; }
-    .bg-danger-subtle { background-color: #fef2f2; }
-    .bg-warning-subtle { background-color: #fffbeb; }
-    .text-success { color: #16a34a !important; }
-    .text-danger { color: #dc2626 !important; }
-    .text-warning-emphasis { color: #92400e !important; }
-    
-    .shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .transition-row { transition: all 0.2s ease; }
-    .transition-row:hover { background-color: #f8fafc !important; }
-    
-    .table thead th { font-size: 0.7rem; letter-spacing: 0.5px; font-weight: 700; color: #64748b; }
-    .btn-primary { background: linear-gradient(135deg, #0058a8 0%, #007bff 100%); border: none; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/meeting-index.css') }}">
 @endsection

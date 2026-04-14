@@ -2,57 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <style>
-        /* Reset & Base */
-        @page { margin: 0.5cm 1cm 1cm 1cm; } /* Perkecil margin atas agar tidak kosong */
-        body { font-family: sans-serif; font-size: 8.5pt; color: #333; line-height: 1.2; margin: 0; }
-
-        /* Header Layout menggunakan Table agar stabil */
-        .kop-table { width: 100%; border: none; margin-bottom: 10px; border-bottom: 2px solid #000; }
-        .kop-table td { border: none; padding: 0; vertical-align: middle; }
-        
-        .header-text { text-align: center; }
-        .header-text h1 { font-size: 12pt; margin: 0; }
-        .header-text h2 { font-size: 11pt; margin: 2px 0; }
-        .header-text p { font-size: 9pt; margin: 0; color: #0056b3; font-weight: bold; }
-        
-        .meta { margin-bottom: 10px; font-size: 8pt; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
-        /* Table Data */
-        table.data-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            table-layout: fixed; /* Kunci lebar kolom */
-        }
-        
-        /* Hilangkan Page Break Avoid agar baris bisa terpotong dan tidak loncat halaman */
-        table.data-table, .data-table tr, .data-table td {
-            page-break-inside: auto !important;
-        }
-
-        .data-table th { 
-            background-color: #f8f9fa; 
-            border: 1px solid #333; 
-            padding: 6px; 
-            font-size: 8pt;
-            text-align: center;
-        }
-
-        .data-table td { 
-            border: 1px solid #333; 
-            padding: 8px; 
-            vertical-align: top; 
-            word-wrap: break-word; 
-        }
-
-        .bg-gray { background-color: #fafafa; }
-        .label { font-weight: bold; color: #555; font-size: 7.5pt; display: block; margin-bottom: 2px; text-decoration: underline; }
-        .text-center { text-align: center; }
-
-        /* Tanda Tangan tanpa Float */
-        .footer-wrapper { margin-top: 20px; width: 100%; }
-        .footer-sign { width: 200px; text-align: center; margin-left: auto; } /* margin-left: auto menggantikan float:right */
-    </style>
+    <link rel="stylesheet" href="{{ public_path('css/pages/history-pdf.css') }}">
 </head>
 <body>
 

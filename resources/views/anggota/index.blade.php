@@ -1,109 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* 1. Paksa Container tetap di dalam layar */
-    .container-fluid {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-
-    .card-members {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        background: #fff;
-    }
-
-    /* 2. Fix Table agar tidak meluber */
-    .table-responsive {
-        border: none;
-        margin: 0;
-        overflow-x: auto;
-    }
-
-    .table-members {
-        width: 100%;
-        margin-bottom: 0;
-        table-layout: fixed;
-    }
-
-    .table-members thead th {
-        background-color: #f8fafc;
-        color: #64748b;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 800;
-        padding: 15px 10px;
-        border: none;
-    }
-
-    /* 3. Atur Lebar Kolom secara Presisi */
-    .col-nama { width: 25%; }
-    .col-user { width: 15%; }
-    .col-role { width: 15%; }
-    .col-tim  { width: 15%; }
-    .col-tgl  { width: 15%; }
-    .col-aksi { width: 15%; }
-
-    .table-members tbody td {
-        padding: 12px 10px;
-        border-bottom: 1px solid #f1f5f9;
-        vertical-align: middle;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* 4. Avatar & Badges */
-    .avatar-mini {
-        width: 32px;
-        height: 32px;
-        background: #0058a8;
-        color: white;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.8rem;
-        flex-shrink: 0;
-    }
-
-    .role-badge {
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 50px;
-    }
-
-    /* 5. Action Buttons Compact */
-    .btn-action-group {
-        display: flex;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    .btn-mini {
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        border: none;
-        transition: 0.2s;
-    }
-    .btn-edit { background: #fffbeb; color: #d97706; }
-    .btn-delete { background: #fff1f0; color: #ef4444; }
-    .btn-mini:hover { transform: scale(1.1); }
-
-    @media (max-width: 768px) {
-        .table-members { table-layout: auto; }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/anggota-index.css') }}">
 
 <div class="container-fluid">
     <div class="card card-members">
@@ -215,29 +113,7 @@
 </div>
 
 @if(Auth::user()->role == 'Admin')
-<script>
-    function confirmDelete(id, name) {
-        Swal.fire({
-            title: 'Hapus Anggota?',
-            text: name + " akan dihapus secara permanen dari sistem.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            customClass: {
-                popup: 'rounded-4',
-                confirmButton: 'rounded-pill px-4',
-                cancelButton: 'rounded-pill px-4'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('del-' + id).submit();
-            }
-        });
-    }
-</script>
+<script src="{{ asset('js/pages/anggota-index.js') }}"></script>
 @endif
 
 @endsection

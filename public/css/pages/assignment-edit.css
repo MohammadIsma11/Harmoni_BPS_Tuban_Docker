@@ -1,0 +1,36 @@
+:root { --bps-blue: #0058a8; --bps-text: #1e293b; }
+.card-assignment { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+
+.form-section-title { 
+    font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; 
+    letter-spacing: 1.5px; margin-bottom: 1.25rem; display: flex; align-items: center;
+    width: 100%;
+}
+.form-section-title i { margin-right: 10px; color: var(--bps-blue); }
+.form-section-title::after { content: ""; flex: 1; height: 1px; background: #f1f5f9; margin-left: 15px; }
+
+.user-selection-container { border: 1px solid #e2e8f0; border-radius: 15px; background: #fff; overflow: hidden; }
+.user-selection-box { max-height: 500px; overflow-y: auto; }
+
+.user-group-label { 
+    background: #f8fafc; color: #64748b; font-weight: 800; padding: 12px 15px; font-size: 0.65rem; 
+    text-transform: uppercase; border-bottom: 1px solid #f1f5f9; position: sticky; top: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+}
+
+.user-item { padding: 12px 15px; border-bottom: 1px solid #f8fafc; display: flex; align-items: center; cursor: pointer; transition: 0.2s; }
+.user-item:hover { background-color: #f0f7ff; }
+.user-item.selected { background-color: #eef6ff; border-left: 4px solid var(--bps-blue); }
+
+.custom-chk { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #cbd5e1; margin-right: 12px; display: flex; align-items: center; justify-content: center; background: #fff; flex-shrink: 0; }
+.user-check:checked + .custom-chk { background-color: var(--bps-blue); border-color: var(--bps-blue); }
+.user-check:checked + .custom-chk::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #fff; font-size: 10px; }
+
+.form-control, .form-select { border-radius: 10px; padding: 0.75rem; min-height: 48px; }
+.required-star { color: #ef4444; margin-left: 3px; font-weight: bold; }
+
+#btnSelectAll {
+    border: 1.5px solid var(--bps-blue); color: var(--bps-blue); background: white;
+    font-size: 0.65rem; font-weight: 800; padding: 5px 15px; border-radius: 8px;
+    transition: all 0.3s ease; display: inline-flex; align-items: center; cursor: pointer;
+}

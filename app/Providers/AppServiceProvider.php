@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Agenda;
 use App\Models\MeetingPresence;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // 1. Gunakan Bootstrap 5 untuk Pagination
         Paginator::useBootstrapFive();
+
+        // 2. Paksa HTTPS jika bukan di local (untuk fix 'Not Secure' alert di server)
+        if (config('app.env') !== 'local') {
+            URL::forceScheme('https');
+        }
 
         // 2. GATE HAK AKSES (POV REVISI)
         Gate::define('is-admin', fn(User $user) => $user->role === 'Admin');

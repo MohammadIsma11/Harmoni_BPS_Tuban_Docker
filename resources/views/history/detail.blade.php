@@ -19,7 +19,7 @@
             <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4 fw-bold">
                 <i class="fas fa-arrow-left me-2"></i>Kembali
             </a>
-            <a href="{{ route('history.export', $agenda->id) }}" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+            <a href="{{ route('history.export', $report->id) }}" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
                 <i class="fas fa-file-pdf me-2"></i>Cetak PDF
             </a>
         </div>
@@ -45,27 +45,27 @@
 
                 <div class="mb-3">
                     <label class="small text-muted d-block fw-bold text-uppercase mb-1">Tujuan Perjalanan Dinas</label>
-                    <p class="text-dark fw-semibold mb-0"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $agenda->location }}</p>
+                    <p class="text-dark fw-semibold mb-0"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $report->lokasi_tujuan }}</p>
                 </div>
 
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="small text-muted d-block fw-bold text-uppercase mb-1">Tanggal Pelaksanaan</label>
                         <p class="text-dark fw-bold mb-0">
-                            {{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('d F Y') }}
+                            {{ \Carbon\Carbon::parse($report->tanggal_lapor)->translatedFormat('d F Y') }}
                         </p>
                     </div>
                     <div class="col-6 mb-3">
                         <label class="small text-muted d-block fw-bold text-uppercase mb-1">Hari</label>
                         <p class="text-dark fw-bold mb-0">
-                            {{ \Carbon\Carbon::parse($agenda->tanggal_pelaksanaan)->translatedFormat('l') }}
+                            {{ \Carbon\Carbon::parse($report->tanggal_lapor)->translatedFormat('l') }}
                         </p>
                     </div>
                 </div>
 
                 <div class="mb-0">
                     <label class="small text-muted d-block fw-bold text-uppercase mb-1">Petugas/Responden Ditemui</label>
-                    <p class="text-dark fw-semibold mb-0">{{ $agenda->responden ?? '-' }}</p>
+                    <p class="text-dark fw-semibold mb-0">{{ $details['responden'] ?? ($agenda->responden ?? '-') }}</p>
                 </div>
             </div>
 
@@ -97,7 +97,7 @@
                         <h5 class="fw-bold mb-0">I. Aktivitas yang Dilakukan</h5>
                     </div>
                     <div class="text-dark lh-lg text-justify bg-light p-4 rounded-4" style="white-space: pre-line;">
-                        {!! nl2br(e($agenda->aktivitas)) !!}
+                        {!! nl2br(e($details['aktivitas'] ?? $agenda->aktivitas)) !!}
                     </div>
                 </div>
 
@@ -109,7 +109,7 @@
                         <h5 class="fw-bold mb-0 text-danger">II. Permasalahan yang Ditemui</h5>
                     </div>
                     <div class="text-dark lh-lg text-justify bg-danger bg-opacity-10 p-4 rounded-4 border-start border-danger border-4" style="white-space: pre-line;">
-                        {!! nl2br(e($agenda->permasalahan)) !!}
+                        {!! nl2br(e($details['permasalahan'] ?? $agenda->permasalahan)) !!}
                     </div>
                 </div>
 
@@ -121,7 +121,7 @@
                         <h5 class="fw-bold mb-0 text-success">III. Solusi / Langkah Antisipatif</h5>
                     </div>
                     <div class="text-dark lh-lg text-justify bg-success bg-opacity-10 p-4 rounded-4 border-start border-success border-4" style="white-space: pre-line;">
-                        {!! nl2br(e($agenda->solusi_antisipasi)) !!}
+                        {!! nl2br(e($details['solusi_antisipasi'] ?? $agenda->solusi_antisipasi)) !!}
                     </div>
                 </div>
             </div>
@@ -129,12 +129,5 @@
     </div>
 </div>
 
-<style>
-    .text-justify {
-        text-align: justify;
-    }
-    .lh-lg {
-        line-height: 1.8;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pages/history-detail.css') }}">
 @endsection

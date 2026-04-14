@@ -1,0 +1,15 @@
+.avatar-circle {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.85rem;
+}
+.btn-white { background-color: #fff; }
+.nav-pills .nav-link { color: #64748b; border: 1px solid transparent; }
+.nav-pills .nav-link.active { 
+    background-color: #fff !important; 
+    color: #0058a8 !important; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #e2e8f0;
+}
+.shadow-xs { box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.table-hover tbody tr:hover { background-color: #f8fafc; }

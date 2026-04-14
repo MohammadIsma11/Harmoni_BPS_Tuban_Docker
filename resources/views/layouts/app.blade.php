@@ -10,131 +10,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo_harmoni.png') }}">
 
-    <style>
-        :root {
-            --bps-blue: #0058a8;
-            --bps-light-blue: #eef6ff;
-            --sidebar-width: 280px;
-            --top-nav-height: 75px;
-        }
+    {{-- Manual Assets --}}
+    <link rel="stylesheet" href="{{ asset('css/layouts/app-layout.css') }}">
+    
+    {{-- Axios CDN --}}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-        body { 
-            background-color: #f8fafc; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            overflow-x: hidden; 
-            color: #1e293b;
-        }
-
-        /* --- SIDEBAR STYLING --- */
-        .sidebar { 
-            width: var(--sidebar-width); 
-            height: 100vh; 
-            position: fixed; 
-            background: #ffffff; 
-            border-right: 1px solid rgba(0,0,0,0.05); 
-            padding: 30px 20px; 
-            z-index: 1050; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.02);
-            overflow-y: auto;
-        }
-
-        .sidebar-logo-img {
-            width: 100px; height: auto;
-            display: block; margin: 0 auto;
-            filter: drop-shadow(0 5px 8px rgba(0, 88, 168, 0.12));
-        }
-
-        .logo-container { padding: 0 15px 25px 15px; text-align: center; }
-
-        .logo-text { 
-            font-size: 0.95rem; letter-spacing: 2px; 
-            color: var(--bps-blue); font-weight: 800; 
-            margin-top: 15px; text-transform: uppercase;
-        }
-
-        .menu-divider { 
-            font-size: 0.65rem; text-transform: uppercase; 
-            color: #94a3b8; font-weight: 800; 
-            margin: 25px 0 12px 15px; letter-spacing: 1.5px;
-        }
-
-        /* --- NAV LINK & DROPDOWN --- */
-        .nav-link { 
-            color: #64748b; padding: 12px 18px; 
-            border-radius: 12px; margin-bottom: 4px; 
-            display: flex; align-items: center;
-            text-decoration: none; transition: all 0.3s; 
-            font-size: 0.85rem; font-weight: 600;
-            border: none; background: transparent; width: 100%;
-            cursor: pointer;
-        }
-
-        .nav-link i:first-child { width: 25px; font-size: 1rem; }
-        .nav-link .arrow { margin-left: auto; transition: transform 0.3s; font-size: 0.7rem; }
-        .nav-link:not(.collapsed) .arrow { transform: rotate(180deg); }
-
-        .nav-link:hover, .nav-link:focus {
-            background: var(--bps-light-blue);
-            color: var(--bps-blue);
-        }
-
-        .nav-link.active { 
-            background: linear-gradient(135deg, var(--bps-blue) 0%, #007bff 100%) !important; 
-            color: #ffffff !important; 
-            box-shadow: 0 8px 15px rgba(0, 88, 168, 0.2);
-        }
-
-        .submenu { list-style: none; padding: 5px 0 5px 15px; margin: 0; }
-        .submenu .nav-link {
-            padding: 10px 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        /* --- NOTIFICATION BADGE --- */
-        .badge-notif { 
-            font-size: 0.6rem; 
-            padding: 0.35em 0.65em; 
-            font-weight: 800;
-            box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2);
-            margin-left: auto;
-        }
-
-        /* --- MAIN CONTENT --- */
-        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; transition: all 0.4s; }
-        .top-navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            height: var(--top-nav-height); padding: 0 40px; 
-            border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000;
-        }
-
-        .content-padding { padding: 35px 40px; }
-
-        .avatar-box {
-            width: 35px; height: 35px; background: var(--bps-blue); color: white;
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; margin-right: 12px;
-        }
-
-        .user-profile-badge {
-            background: #fff; border: 1px solid #e2e8f0; padding: 5px 15px 5px 6px; 
-            border-radius: 50px; display: flex; align-items: center; cursor: pointer;
-            transition: all 0.3s;
-        }
-        .user-profile-badge:hover { border-color: var(--bps-blue); background: var(--bps-light-blue); }
-
-        @media (max-width: 992px) {
-            .sidebar { left: calc(var(--sidebar-width) * -1); }
-            .sidebar.active { left: 0; }
-            .main-content { margin-left: 0; }
-            .top-navbar { padding: 0 20px; }
-        }
-    </style>
+    {{-- Swup for Smooth Transitions --}}
+    <link rel="stylesheet" href="https://unpkg.com/swup@4/dist/swup.css">
 </head>
 <body>
+
+<div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progress-bar"></div>
+</div>
 
 <div class="sidebar shadow-sm" id="sidebar">
     <div class="logo-container">
@@ -149,7 +40,7 @@
         {{-- SECTION: UTAMA --}}
         @if(Auth::user()->role != 'Admin')
             <div class="menu-divider mt-0">Menu Utama</div>
-            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="nav-link">
                 <i class="fas fa-th-large me-2"></i> <span>Dashboard</span>
             </a>
         @endif
@@ -157,11 +48,11 @@
         {{-- SECTION: PENUGASAN --}}
         @if(Auth::user()->role == 'Kepala' || Auth::user()->role == 'Katim')
             <div class="menu-divider">Perencanaan</div>
-            <a href="{{ route('assignment.index') }}" class="nav-link {{ request()->routeIs('assignment.index') ? 'active' : '' }}">
+            <a href="{{ route('assignment.index') }}" class="nav-link">
                 <i class="fas fa-clipboard-list me-2"></i> <span>Assignment</span>
             </a>
 
-            <a href="{{ route('assignment.approvals.index') }}" class="nav-link {{ request()->routeIs('assignment.approvals.*') ? 'active' : '' }}">
+            <a href="{{ route('assignment.approvals.index') }}" class="nav-link">
                 <i class="fas fa-file-signature me-2"></i> 
                 <span>Persetujuan SPT</span>
                 
@@ -191,7 +82,7 @@
         {{-- SECTION: USER MANAGEMENT --}}
         @if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Kepala')
             <div class="menu-divider">Pengaturan</div>
-            <a href="{{ route('manajemen.anggota') }}" class="nav-link {{ request()->is('manajemen/anggota*') ? 'active' : '' }}">
+            <a href="{{ route('manajemen.anggota') }}" class="nav-link">
                 <i class="fas fa-users-cog me-2"></i> <span>Manajemen User</span>
             </a>
         @endif
@@ -199,7 +90,7 @@
         {{-- SECTION: MONITORING --}}
         @if(Auth::user()->role != 'Admin')
             <div class="menu-divider">Monitoring</div>
-            <a href="{{ route('monitoring.index') }}" class="nav-link {{ request()->routeIs('monitoring.*') ? 'active' : '' }}">
+            <a href="{{ route('monitoring.index') }}" class="nav-link">
                 <i class="fas fa-calendar-check me-2"></i> <span>Timeline Agenda</span>
             </a>
         @endif
@@ -207,7 +98,7 @@
         {{-- SECTION: ABSENSI (KHUSUS SUBBAGIAN UMUM) --}}
         @if(Auth::user()->team && Auth::user()->team->nama_tim === 'Subbagian Umum')
             <div class="menu-divider">Administrasi</div>
-            <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : '' }}">
+            <a href="{{ route('absensi.index') }}" class="nav-link">
                 <i class="fas fa-user-check me-2"></i> <span>Gatekeeper Absensi</span>
             </a>
         @endif
@@ -217,16 +108,16 @@
             <div class="menu-divider">Pelaksanaan</div>
             
             {{-- Tugas Lapangan --}}
-            <button class="nav-link collapsed {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'text-primary' : '' }}" 
+            <button class="nav-link collapsed" 
                     data-bs-toggle="collapse" data-bs-target="#menuLapangan">
                 <i class="fas fa-briefcase me-2"></i> 
                 <span>Tugas Lapangan</span>
                 <i class="fas fa-chevron-down arrow"></i>
             </button>
-            <div class="collapse {{ request()->routeIs('task.*') || request()->routeIs('history.*') ? 'show' : '' }}" id="menuLapangan">
+            <div class="collapse" id="menuLapangan">
                 <ul class="submenu">
                     <li>
-                        <a href="{{ route('task.index') }}" class="nav-link small {{ request()->routeIs('task.index') ? 'active' : '' }}">
+                        <a href="{{ route('task.index') }}" class="nav-link small">
                             <i class="fas fa-tasks me-2"></i> 
                             <span>Daftar Tugas</span>
                             @if(isset($notifLapangan) && $notifLapangan > 0)
@@ -235,7 +126,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('history.index') }}" class="nav-link small {{ request()->routeIs('history.index') ? 'active' : '' }}">
+                        <a href="{{ route('history.index') }}" class="nav-link small">
                             <i class="fas fa-history me-2"></i> Riwayat Laporan
                         </a>
                     </li>
@@ -243,16 +134,16 @@
             </div>
 
             {{-- Agenda Kegiatan --}}
-            <button class="nav-link collapsed {{ request()->routeIs('meeting.*') ? 'text-primary' : '' }}" 
+            <button class="nav-link collapsed" 
                     data-bs-toggle="collapse" data-bs-target="#menuRapat">
                 <i class="fas fa-handshake me-2"></i> 
                 <span>Kegiatan Dinas</span>
                 <i class="fas fa-chevron-down arrow"></i>
             </button>
-            <div class="collapse {{ request()->routeIs('meeting.*') ? 'show' : '' }}" id="menuRapat">
+            <div class="collapse" id="menuRapat">
                 <ul class="submenu">
                     <li>
-                        <a href="{{ route('meeting.index') }}" class="nav-link small {{ request()->routeIs('meeting.index') ? 'active' : '' }}">
+                        <a href="{{ route('meeting.index') }}" class="nav-link small">
                             <i class="fas fa-calendar-day me-2"></i> 
                             <span>Jadwal Kegiatan</span>
                             @if(isset($notifKegiatan) && $notifKegiatan > 0)
@@ -261,7 +152,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('meeting.history') }}" class="nav-link small {{ request()->routeIs('meeting.history') ? 'active' : '' }}">
+                        <a href="{{ route('meeting.history') }}" class="nav-link small">
                             <i class="fas fa-file-archive me-2"></i> Riwayat & Notulensi
                         </a>
                     </li>
@@ -271,17 +162,15 @@
 
             {{-- Menu Akses Super --}}
             @if(Auth::user()->role == 'Kepala' || Auth::user()->role == 'Katim' || Auth::user()->has_super_access == 1)
-                <li class="nav-item">
-                    <a href="{{ route('super.access.index') }}" class="nav-link {{ request()->routeIs('super.access.*') ? 'active' : '' }}">
-                        <i class="fas fa-shield-alt me-2 text-danger"></i>
-                        <span>Akses Super</span>
-                    </a>
-                </li>
+                <a href="{{ route('super.access.index') }}" class="nav-link">
+                    <i class="fas fa-shield-alt me-2 text-danger"></i>
+                    <span>Akses Super</span>
+                </a>
             @endif
 
         {{-- SECTION: SYSTEM --}}
         <div class="menu-divider">Sistem</div>
-        <a href="{{ route('panduan.index') }}" class="nav-link {{ request()->routeIs('panduan.*') ? 'active' : '' }}">
+        <a href="{{ route('panduan.index') }}" class="nav-link">
             <i class="fas fa-book me-2"></i> <span>Panduan Pengguna</span>
         </a>
 
@@ -303,7 +192,48 @@
             </div>
         </div>
         
-        <div class="dropdown">
+        <div class="d-flex align-items-center">
+            {{-- Notification Bell --}}
+            <div class="dropdown me-3">
+                <a href="#" class="nav-link position-relative notification-bell" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell text-muted fs-5"></i>
+                    @php $unreadCount = Auth::user()->unreadNotifications->count(); @endphp
+                    @if($unreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 0.25em 0.5em;">
+                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        </span>
+                    @endif
+                </a>
+                <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2 p-0 overflow-hidden" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px;">
+                    <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Notifikasi</h6>
+                        <a href="{{ route('notifications.readAll') }}" class="small text-decoration-none">Tandai sudah baca</a>
+                    </div>
+                    <div class="notification-list overflow-auto" style="max-height: 300px;">
+                        @forelse(Auth::user()->notifications()->take(10)->get() as $notification)
+                            <a href="{{ route('notifications.markAsRead', $notification->id) }}" class="dropdown-item p-3 border-bottom d-flex align-items-start {{ $notification->read_at ? 'opacity-75' : 'bg-light-primary' }}">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3">
+                                    <i class="fas fa-clipboard-list text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="small fw-bold text-dark text-truncate">{{ $notification->data['title'] ?? 'Penugasan Baru' }}</div>
+                                    <div class="small text-muted text-wrap" style="font-size: 0.75rem;">{{ $notification->data['message'] ?? '' }}</div>
+                                    <div class="small text-muted mt-1" style="font-size: 0.65rem;">{{ $notification->created_at->diffForHumans() }}</div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="p-4 text-center text-muted">
+                                <i class="fas fa-bell-slash d-block mb-2 fs-4"></i>
+                                <span class="small">Belum ada notifikasi</span>
+                            </div>
+                        @endforelse
+                    </div>
+                    <a href="{{ route('notifications.index') }}" class="dropdown-item py-2 bg-light text-center small text-primary fw-bold">Lihat Semua Notifikasi</a>
+                </div>
+            </div>
+
+            {{-- User Profile --}}
+            <div class="dropdown">
             <div class="user-profile-badge shadow-sm" data-bs-toggle="dropdown">
                 <div class="avatar-box shadow-sm">
                     {{ strtoupper(substr(Auth::user()->nama_lengkap ?? 'U', 0, 1)) }}
@@ -339,7 +269,9 @@
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
 
     <div class="content-padding">
-        @yield('content')
+        <div id="swup" class="transition-fade">
+            @yield('content')
+        </div>
     </div>
 </div>
 
@@ -348,24 +280,14 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    $('#btn-toggle').click(function() {
-        $('#sidebar').toggleClass('active');
-    });
-
-    @if(session('success'))
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: "{{ session('success') }}", timer: 2500, showConfirmButton: false });
-    @endif
-    @if(session('error'))
-        Swal.fire({ icon: 'error', title: 'Gagal!', text: "{{ session('error') }}", confirmButtonColor: '#0058a8' });
-    @endif
-
-    $(document).ready(function() {
-        $('.collapse.show').each(function() {
-            $(this).prev('.nav-link').removeClass('collapsed');
-        });
-    });
-</script>
+    <script src="https://unpkg.com/swup@4/dist/Swup.umd.js"></script>
+    <script src="{{ asset('js/layouts/app-layout.js') }}"></script>
+    <script>
+        window.flashMessages = {
+            success: "{{ session('success') }}",
+            error: "{{ session('error') }}"
+        };
+    </script>
 @stack('scripts')
 </body>
 </html>
