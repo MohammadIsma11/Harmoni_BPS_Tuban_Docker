@@ -17,7 +17,7 @@ class AnggotaController extends Controller
 
     public function anggotaIndex(Request $request)
     {
-        $query = User::with('team');
+        $query = User::where('role', '!=', 'Mitra')->with('team');
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('nama_lengkap', 'like', '%' . $request->search . '%')
@@ -71,7 +71,7 @@ class AnggotaController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'username'     => 'required|string|max:50|unique:users,username,' . $user->id,
-            'role'         => 'required|in:Admin,Kepala,Katim,Pegawai', // Pastikan input sesuai enum
+            'role'         => 'required|in:Admin,Kepala,Katim,Pegawai,Mitra', // Tambahkan Mitra sebagai opsi valid
             'team_id'      => 'nullable|exists:teams,id',
             'password'     => 'nullable|min:6',
         ]);

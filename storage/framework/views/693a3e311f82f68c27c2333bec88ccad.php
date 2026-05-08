@@ -66,6 +66,45 @@
     </div>
 
     
+    <?php if(isset($total_honor_month)): ?>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up" style="border-left: 5px solid #6c5ce7 !important;">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-purple bg-opacity-10 text-purple me-3" style="color: #6c5ce7;"><i class="fas fa-money-bill-wave"></i></div>
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Honor Terjadwal (<?php echo e(\Carbon\Carbon::parse(request('filter_bulan', date('Y-m')))->translatedFormat('M Y')); ?>)</p>
+                        <h4 class="fw-bold mb-0 text-dark">Rp <?php echo e(number_format($total_honor_month, 0, ',', '.')); ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up" style="border-left: 5px solid #e17055 !important;">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-orange bg-opacity-10 text-orange me-3" style="color: #e17055;"><i class="fas fa-hourglass-half"></i></div>
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Total Antrean Honor</p>
+                        <h4 class="fw-bold mb-0 text-dark">Rp <?php echo e(number_format($total_antre_honor, 0, ',', '.')); ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card shadow-sm h-100 p-3 border-0 animate-up" style="border-left: 5px solid #00b894 !important;">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-teal bg-opacity-10 text-teal me-3" style="color: #00b894;"><i class="fas fa-user-check"></i></div>
+                    <div>
+                        <p class="text-muted small fw-bold text-uppercase mb-1">Mitra Aktif</p>
+                        <h4 class="fw-bold mb-0 text-dark"><?php echo e($mitra_aktif_count); ?> Mitra</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    
     <?php if($role == 'Kepala' || $role == 'Admin'): ?>
     <div class="row g-4 mb-4">
         

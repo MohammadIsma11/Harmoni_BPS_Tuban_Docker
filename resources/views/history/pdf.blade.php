@@ -103,17 +103,7 @@
         }
     @endphp
 
-    <div class="kop-surat">
-        <img src="{{ public_path('img/logo-bps.png') }}" class="logo-bps">
-        <div class="instansi-info">
-            <h2>BADAN PUSAT STATISTIK</h2>
-            <h3>KABUPATEN TUBAN</h3>
-            <p>Jalan Raya Manunggal No. 8 Sukolilo, Panyuran, Kec. Tuban, Kabupaten Tuban, Jawa Timur</p>
-        </div>
-        <div class="clear"></div>
-    </div>
-
-    <div class="judul-laporan">LAPORAN PERJALANAN DINAS</div>
+    <div class="judul-laporan" style="margin-top: 0;">LAPORAN PERJALANAN DINAS</div>
 
     <table class="table-laporan">
         <tr>
@@ -141,11 +131,6 @@
             <td class="separator">:</td>
             <td class="content">{{ \Carbon\Carbon::parse($report->tanggal_lapor)->translatedFormat('l, d F Y') }}</td>
         </tr>
-        <tr>
-            <td class="label">Responden</td>
-            <td class="separator">:</td>
-            <td class="content">{{ $details['responden'] ?? ($agenda->responden ?? '-') }}</td>
-        </tr>
 
         {{-- BAGIAN LAPORAN DENGAN AUTO-LIST --}}
         <tr>
@@ -165,15 +150,15 @@
         </tr>
     </table>
 
-    <div class="signature-wrapper">
+    <div class="signature-wrapper" style="margin-top: 50px;">
         <div class="signature-box">
             Tuban, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
-            Pegawai,<br><br><br><br><br>
-            <strong>{{ $agenda->assignee->nama_lengkap }}</strong><br>
-            NIP. {{ $agenda->assignee->nip ?? '..........................' }}
+            Pegawai yang melakukan perjalanan,<br><br><br><br><br><br><br>
+            <strong>{{ $agenda->assignee->nama_lengkap }}</strong>
         </div>
         <div class="clear"></div>
     </div>
+
 
     @if($agenda->photos->count() > 0)
     <div class="page-break"></div>
@@ -184,7 +169,9 @@
         <tr>
             @foreach($chunk as $p)
             <td class="photo-td">
-                <img src="{{ public_path('storage/' . $p->photo_path) }}">
+                <div style="height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #eee;">
+                    <img src="{{ public_path('storage/' . $p->photo_path) }}" style="max-height: 100%; max-width: 100%; width: auto; height: auto;">
+                </div>
                 <div class="photo-caption">Gbr: Dokumentasi Lapangan</div>
             </td>
             @endforeach
@@ -193,6 +180,7 @@
         @endforeach
     </table>
     @endif
+
 
 </body>
 </html>

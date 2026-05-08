@@ -87,107 +87,16 @@
                                     <span class="h6 fw-bold mb-0 text-dark">{{ $user->team->nama_tim ?? 'Lintas Tim' }}</span>
                                 </div>
 
-                                {{-- FITUR TAMBAHAN --}}
-                                <div class="mb-4">
-                                    @if($user->role == 'Pegawai')
-                                        <label class="small fw-bold mb-3 text-dark text-uppercase" style="letter-spacing: 1px;">Fitur Tambahan</label>
-                                        <div class="p-3 border rounded-4 bg-white shadow-sm {{ $user->has_super_access ? 'border-danger border-opacity-50' : '' }}">
-                                            <div class="form-check form-switch d-flex align-items-center justify-content-between ps-0">
-                                                <div class="me-3">
-                                                    <label class="form-check-label fw-bold {{ $user->has_super_access ? 'text-danger' : 'text-dark' }} d-block mb-0" for="superAccessSwitch">
-                                                        Mode Akses Monitoring
-                                                    </label>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">
-                                                        {{ $user->has_super_access ? 'Tiket akses aktif. Matikan untuk kembali ke mode pegawai biasa.' : 'Aktifkan untuk memantau seluruh riwayat kegiatan organisasi.' }}
-                                                    </small>
-                                                </div>
-                                                <input type="hidden" name="has_super_access" value="0">
-                                                <input class="form-check-input ms-0 mt-0 shadow-none" type="checkbox" name="has_super_access" role="switch" id="superAccessSwitch" value="1" 
-                                                    {{ $user->has_super_access ? 'checked' : '' }}
-                                                    style="width: 40px; height: 20px; cursor: pointer;">
-                                            </div>
-                                        </div>
-                                    @else
-                                        <input type="hidden" name="has_super_access" value="1">
-                                    @endif
-                                </div>
-
-                                {{-- PILIHAN ROLE --}}
-                                <div class="mb-3">
-                                    <label class="small fw-bold mb-3 text-dark text-uppercase" style="letter-spacing: 1px;">Peran Anda</label>
-                                    <div class="d-flex flex-column gap-3">
-                                        
-                                        @if($user->role == 'Admin')
-                                            <div class="p-3 border rounded-4 bg-light shadow-sm border-primary">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="icon-box me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                        <i class="fas fa-user-shield"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-bold text-primary">Administrator</div>
-                                                        <small class="text-muted small">Akses penuh sistem (Terkunci)</small>
-                                                    </div>
-                                                </div>
-                                                <input type="hidden" name="role" value="Admin">
-                                            </div>
-
-                                        @elseif(($user->role === 'Katim' || $user->role === 'Kepala') || ($user->has_super_access == 1 && in_array($user->username, ['kepala.bps', 'ketua.tim', 'dodik.hendarto', 'respati.yekti', 'umdatul.ummah', 'ika.rahmawati', 'arif.suroso', 'triana.puji', 'yudhi.prasetyono', 'wicaksono'])))
-                                            @php 
-                                                $originalRole = ($user->team_id == 8) ? 'Kepala' : 'Katim'; 
-                                                $displayRole = ($user->role == 'Pegawai') ? $originalRole : $user->role;
-                                            @endphp
-
-                                            <div class="role-selection mb-1">
-                                                <input type="radio" name="role" id="roleOriginal" value="{{ $displayRole }}" class="btn-check" {{ $user->role != 'Pegawai' ? 'checked' : '' }}>
-                                                <label class="btn btn-outline-light text-start p-3 w-100 rounded-4 shadow-xs border" for="roleOriginal">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="icon-box me-3 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas {{ $displayRole == 'Kepala' ? 'fa-user-tie' : 'fa-users-cog' }}"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="fw-bold text-dark">{{ $displayRole }}</div>
-                                                            <small class="text-muted small">Mode Pejabat / Monitoring Aktif</small>
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </div>
-
-                                            <div class="role-selection">
-                                                <input type="radio" name="role" id="rolePegawai" value="Pegawai" class="btn-check" {{ $user->role == 'Pegawai' ? 'checked' : '' }}>
-                                                <label class="btn btn-outline-light text-start p-3 w-100 rounded-4 shadow-xs border" for="rolePegawai">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="icon-box me-3 bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                            <i class="fas fa-user"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="fw-bold text-dark">Pegawai</div>
-                                                            <small class="text-muted small">Alihkan ke Mode Pegawai</small>
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        @else
-                                            <div class="p-3 border rounded-4 bg-light shadow-sm">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="icon-box me-3 bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                        <i class="fas fa-user"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-bold text-dark">Pegawai</div>
-                                                        <small class="text-muted small">Akses laporan pribadi (Terkunci)</small>
-                                                    </div>
-                                                </div>
-                                                <input type="hidden" name="role" value="Pegawai">
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
+                                {{-- HIDDEN INPUTS (Agar tetap ter-update tanpa pemilihan manual) --}}
+                                <input type="hidden" name="role" value="{{ $user->role }}">
+                                <input type="hidden" name="has_super_access" value="{{ $user->has_super_access }}">
 
                                 <div class="mt-5 pt-2">
                                     <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow">
                                         <i class="fas fa-save me-2"></i> Simpan Perubahan
                                     </button>
                                 </div>
+
                             </div>
                         </div>
                     </form>

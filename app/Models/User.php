@@ -60,4 +60,49 @@ class User extends Authenticatable
     {
         return $this->hasMany(Agenda::class, 'user_id');
     }
+
+    /**
+     * Multi-Role Switcher Logic
+     */
+    public function isPejabatAsli()
+    {
+        $daftarPejabat = [
+            'kepala.bps', 'ketua.tim', 'dodik.hendarto', 'respati.yekti', 
+            'umdatul.ummah', 'ika.rahmawati', 'arif.suroso', 'triana.puji', 
+            'yudhi.prasetyono', 'wicaksono'
+        ];
+        return in_array($this->username, $daftarPejabat);
+    }
+
+    public function getAvailableRoles()
+    {
+        $roles = [];
+
+        if ($this->role === 'Admin') {
+            return [['value' => 'Admin', 'label' => 'Administrator', 'icon' => 'fa-user-shield']];
+        }
+
+        if ($this->isPejabatAsli()) {
+            $originalRole = ($this->team_id == 8) ? 'Kepala' : 'Katim';
+            $roles[] = [
+                'value' => $originalRole, 
+                'label' => $originalRole,
+                'icon'  => ($originalRole == 'Kepala') ? 'fa-user-tie' : 'fa-users-cog'
+            ];
+            $roles[] = [
+                'value' => 'Pegawai', 
+                'label' => 'Pegawai', 
+                'icon' => 'fa-user'
+            ];
+        } else {
+            $roles[] = [
+                'value' => 'Pegawai', 
+                'label' => 'Pegawai', 
+                'icon' => 'fa-user'
+            ];
+        }
+
+        return $roles;
+    }
+
 }

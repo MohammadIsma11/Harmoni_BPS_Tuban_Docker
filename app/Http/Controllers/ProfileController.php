@@ -17,39 +17,18 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-{
-    /** @var \App\Models\User $user */
-    $user = Auth::user();
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-    // --- 1. IDENTIFIKASI PEJABAT ASLI ---
-    $daftarPejabat = [
-        'kepala.bps', 'ketua.tim', 'dodik.hendarto', 'respati.yekti', 
-        'umdatul.ummah', 'ika.rahmawati', 'arif.suroso', 'triana.puji', 
-        'yudhi.prasetyono', 'wicaksono'
-    ];
+        // --- 1. LOGIKA ROLE YANG DIIZINKAN (Menggunakan Model) ---
+        $availableRoles = collect($user->getAvailableRoles())->pluck('value')->toArray();
 
-    $isPejabatAsli = in_array($user->username, $daftarPejabat);
-
-    // --- 2. LOGIKA ROLE YANG DIIZINKAN ---
-    $allowedRoles = ['Pegawai'];
-
-    if ($isPejabatAsli && ($request->has_super_access == 1 || $user->role !== 'Pegawai')) {
-        if ($user->team_id == 8) {
-            $allowedRoles = ['Kepala', 'Pegawai'];
-        } else {
-            $allowedRoles = ['Katim', 'Pegawai'];
-        }
-    } 
-    
-    if ($user->role === 'Admin') {
-        $allowedRoles = ['Admin'];
-    }
-
-    // --- 3. VALIDASI (DITAMBAHKAN VALIDASI SIGNATURE) ---
-    $request->validate([
-        'nama_lengkap'     => 'required|string|max:255',
-        'username'         => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
-        'role'             => ['required', \Illuminate\Validation\Rule::in($allowedRoles)],
+        // --- 2. VALIDASI ---
+        $request->validate([
+            'nama_lengkap'     => 'required|string|max:255',
+            'username'         => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
+            'role'             => ['required', \Illuminate\Validation\Rule::in($availableRoles)],
         'password'         => 'nullable|min:8|confirmed',
         'signature'        => 'nullable|image|mimes:png|max:2048', // Khusus PNG agar transparan, max 2MB
     ]);
@@ -94,4 +73,33 @@ class ProfileController extends Controller
 
     return back()->with('success', 'Profil dan Tanda Tangan berhasil diperbarui!');
 }
+
+public function switchRole(Request $request)
+    {
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $request->validate([
+            'role' => 'required|string'
+        ]);
+
+        $availableRoles = collect($user->getAvailableRoles())->pluck('value')->toArray();
+
+        if (!in_array($request->role, $availableRoles)) {
+            return back()->with('error', 'Role tidak valid atau Anda tidak memiliki akses.');
+        }
+
+        // Update Role
+        $user->role = $request->role;
+
+        // Otomatis aktifkan Super Access jika masuk ke mode Kepala/Katim
+        if (in_array($request->role, ['Kepala', 'Katim'])) {
+            $user->has_super_access = 1;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Berhasil beralih ke mode ' . $request->role);
+    }
 }

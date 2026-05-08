@@ -73,7 +73,7 @@
                                 <label class="form-label small fw-bold text-muted text-uppercase">Kecamatan <span class="text-danger">*</span></label>
                                 <select name="kecamatan" id="kecamatan" class="form-select rounded-3 border-0 bg-light p-3 fw-bold" required>
                                     <option value="">-- Pilih Kecamatan --</option>
-                                    @foreach(["Bancar", "Bangilan", "Grabagan", "Jatirogo", "Jenu", "Kenduruan", "Kerek", "Merakurak", "Montong", "Palang", "Parengan", "Plumpang", "Rengel", "Semanding", "Senori", "Singgahan", "Soko", "Tambakboyo", "Tuban", "Widang"] as $kec)
+                                    @foreach(["BANCAR", "BANGILAN", "GRABAGAN", "JATIROGO", "JENU", "KENDURUAN", "KEREK", "MERAKURAK", "MONTONG", "PALANG", "PARENGAN", "PLUMPANG", "RENGEL", "SEMANDING", "SENORI", "SINGGAHAN", "SOKO", "TAMBAKBOYO", "TUBAN", "WIDANG"] as $kec)
                                         <option value="{{ $kec }}" {{ (old('kecamatan', $currentKec) == $kec) ? 'selected' : '' }}>{{ $kec }}</option>
                                     @endforeach
                                 </select>

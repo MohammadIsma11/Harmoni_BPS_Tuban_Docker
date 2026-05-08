@@ -37,6 +37,28 @@ class AuthController extends Controller
         return back()->with('error', 'Username atau Password salah!')->withInput();
     }
 
+    public function loginApi(Request $request)
+    {
+        $credentials = $request->only('username', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'username' => $user->username,
+                    'nama_lengkap' => $user->nama_lengkap,
+                    'role' => $user->role,
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
     /**
      * Helper function untuk menentukan arah redirect setelah login/check
      */

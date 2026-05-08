@@ -34,12 +34,22 @@ function syncSidebar() {
 }
 
 function initCoreLayout() {
-    // 1. Sidebar Toggle (Mobile)
-    $('#btn-toggle').off('click').on('click', function() {
-        $('#sidebar').toggleClass('active');
+    // 2. Global Sidebar Toggle (Universal)
+    const isHidden = localStorage.getItem('sidebarHidden') === 'true';
+    if (isHidden && window.innerWidth > 992) {
+        $('body').addClass('sidebar-hidden');
+    }
+
+    $('#global-sidebar-toggle').off('click').on('click', function() {
+        if (window.innerWidth > 992) {
+            $('body').toggleClass('sidebar-hidden');
+            localStorage.setItem('sidebarHidden', $('body').hasClass('sidebar-hidden'));
+        } else {
+            $('#sidebar').toggleClass('active');
+        }
     });
 
-    // 2. Sidebar Dropdown Persistence (LocalStorage)
+    // 3. Sidebar Dropdown Persistence (LocalStorage)
     const openMenus = JSON.parse(localStorage.getItem('sidebarOpenMenus') || '[]');
     
     $('.collapse').each(function() {
@@ -66,55 +76,7 @@ function initCoreLayout() {
 
     // Sync sidebar state with current URL
     syncSidebar();
-
-    // 3. Global Notifications (Swal)
-    if (window.flashMessages) {
-        if (window.flashMessages.success && window.flashMessages.success !== "" && window.flashMessages.success !== "null") {
-            Swal.fire({ 
-                icon: 'success', 
-                title: 'Berhasil!', 
-                text: window.flashMessages.success, 
-                timer: 2500, 
-                showConfirmButton: false,
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdrop: 'rgba(0, 88, 168, 0.05)'
-            });
-            window.flashMessages.success = "null";
-        }
-        if (window.flashMessages.error && window.flashMessages.error !== "" && window.flashMessages.error !== "null") {
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'Gagal!', 
-                text: window.flashMessages.error, 
-                confirmButtonColor: '#0058a8' 
-            });
-            window.flashMessages.error = "null";
-        }
-    }
 }
-
-// --- INITIALIZE SWUP ---
-const swup = new Swup({
-    containers: ["#swup"],
-    animationSelector: '[class*="transition-"]',
-    cache: true
-});
-
-swup.hooks.on('content:replace', () => {
-    initCoreLayout();
-    if (typeof window.initPageScripts === 'function') {
-        window.initPageScripts();
-    }
-});
-
-// Progress Bar Logic
-swup.hooks.on('visit:start', () => {
-    $('#progress-bar').css('width', '30%');
-});
-swup.hooks.on('visit:end', () => {
-    $('#progress-bar').css('width', '100%');
-    setTimeout(() => $('#progress-bar').css('width', '0'), 300);
-});
 
 $(document).ready(function() {
     initCoreLayout();

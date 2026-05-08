@@ -27,14 +27,7 @@
         <p class="text-muted small fw-medium">Harian Monitoring Instansi BPS Kabupaten Tuban</p>
     </div>
 
-    <?php if(session('error')): ?>
-        <div class="alert alert-danger border-0 small mb-4 shadow-sm py-2">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-circle-exclamation me-2"></i>
-                <div><?php echo e(session('error')); ?></div>
-            </div>
-        </div>
-    <?php endif; ?>
+
 
     <form action="<?php echo e(route('login.action')); ?>" method="POST">
         <?php echo csrf_field(); ?> <div class="mb-3">
@@ -67,6 +60,43 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    <?php if(session('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "<?php echo e(session('success')); ?>",
+            confirmButtonColor: '#0058a8',
+        });
+    <?php endif; ?>
+
+    <?php if(session('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Masuk',
+            text: "<?php echo e(session('error')); ?>",
+            confirmButtonColor: '#0058a8',
+        });
+    <?php endif; ?>
+
+    <?php if($errors->any()): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal',
+            html: `
+                <ul class="text-start small mb-0">
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            `,
+            confirmButtonColor: '#0058a8',
+        });
+    <?php endif; ?>
+</script>
 </body>
 </html><?php /**PATH /var/www/resources/views/auth/login.blade.php ENDPATH**/ ?>

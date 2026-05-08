@@ -27,14 +27,7 @@
         <p class="text-muted small fw-medium">Harian Monitoring Instansi BPS Kabupaten Tuban</p>
     </div>
 
-    @if(session('error'))
-        <div class="alert alert-danger border-0 small mb-4 shadow-sm py-2">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-circle-exclamation me-2"></i>
-                <div>{{ session('error') }}</div>
-            </div>
-        </div>
-    @endif
+
 
     <form action="{{ route('login.action') }}" method="POST">
         @csrf <div class="mb-3">
@@ -67,6 +60,43 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            confirmButtonColor: '#0058a8',
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Masuk',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#0058a8',
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal',
+            html: `
+                <ul class="text-start small mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            `,
+            confirmButtonColor: '#0058a8',
+        });
+    @endif
+</script>
 </body>
 </html>

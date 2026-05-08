@@ -46,6 +46,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->team && $user->team->nama_tim === 'Subbagian Umum';
         });
 
+        Gate::define('access-mitra-rekap', function (User $user) {
+            return in_array($user->role, ['Kepala', 'Katim', 'Admin']) || ($user->team && $user->team->nama_tim === 'Subbagian Umum');
+        });
+
 
         // 3. LOGIKA NOTIFIKASI BADGE (View Composer)
         View::composer('*', function ($view) {

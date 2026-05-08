@@ -61,9 +61,11 @@
                                 @elseif($a->role == 'Kepala')
                                     <span class="role-badge bg-dark bg-opacity-10 text-dark border border-dark border-opacity-10">Kepala</span>
                                 @elseif($a->role == 'Katim')
-                                    <span class="role-badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">Katim</span>
+                                    <span class="role-badge bg-info bg-opacity-10 text-info border border-info border-opacity-10">Katim</span>
+                                @elseif($a->role == 'Mitra')
+                                    <span class="role-badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Mitra</span>
                                 @else
-                                    <span class="role-badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Pegawai</span>
+                                    <span class="role-badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10">Pegawai</span>
                                 @endif
                             </td>
                             <td class="text-center small fw-medium text-muted">

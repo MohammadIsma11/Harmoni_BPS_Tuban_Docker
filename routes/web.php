@@ -5,7 +5,9 @@ use App\Http\Controllers\{
     AuthController, DashboardController, ProfileController, 
     MeetingController, TaskController, RekapController, 
     AnggotaController, AssignmentController, AbsensiController, 
-    HistoryController, SuperAccessController, NotificationController
+    HistoryController, SuperAccessController, NotificationController,
+    MitraController, KegiatanController, PenugasanController, ModuleController,
+    SSOController, TematikController
 };
 
 /*
@@ -25,13 +27,28 @@ Route::middleware('guest')->group(function () {
 */
 Route::middleware('auth')->group(function () {
 
+    /* --- Tematik Module --- */
+    Route::prefix('tematik')->group(function () {
+        Route::get('/', [TematikController::class, 'index'])->name('tematik.index');
+        Route::get('/api/lokasi', [TematikController::class, 'getData'])->name('tematik.api.lokasi');
+        Route::get('/api/laporan', [TematikController::class, 'getLaporan'])->name('tematik.api.laporan');
+        Route::get('/api/info', [TematikController::class, 'getInfo'])->name('tematik.api.info');
+        Route::get('/api/users', [TematikController::class, 'getUsers'])->name('tematik.api.users');
+        Route::post('/api/lokasi', [TematikController::class, 'store'])->name('tematik.api.store');
+        Route::put('/api/lokasi/{id}', [TematikController::class, 'update'])->name('tematik.api.update');
+        Route::delete('/api/lokasi/{id}', [TematikController::class, 'destroy'])->name('tematik.api.destroy');
+    });
+
     /* --- Profile & Global --- */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/switch-role', [ProfileController::class, 'switchRole'])->name('profile.switch-role');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/super-access', [SuperAccessController::class, 'index'])->name('super.access.index');
     Route::get('/panduan', [DashboardController::class, 'panduanIndex'])->name('panduan.index');
     Route::get('/assignment/{id}/download-spt', [AssignmentController::class, 'downloadSPT'])->name('assignment.download-spt');
+    Route::post('/switch-module', [ModuleController::class, 'switchMode'])->name('module.switch');
+    Route::get('/sso/check', [SSOController::class, 'check'])->name('sso.check');
 
     /* --- Notifications --- */
     Route::prefix('notifications')->group(function () {
@@ -100,6 +117,56 @@ Route::middleware('auth')->group(function () {
                 Route::put('/{id}', [AnggotaController::class, 'anggotaUpdate'])->name('manajemen.anggota.update');
                 Route::delete('/{id}', [AnggotaController::class, 'anggotaDestroy'])->name('manajemen.anggota.destroy');
             });
+        });
+    });
+    
+    /* --- MODULE: HONORARIUM MITRA --- */
+    
+    // 1. Manajemen Master (Admin & Kepala)
+    Route::middleware('can:access-manajemen-user')->group(function () {
+        Route::prefix('manajemen')->group(function () {
+            // Master Mitra
+            Route::post('mitra/truncate', [MitraController::class, 'truncate'])->name('manajemen.mitra.truncate');
+            Route::resource('mitra', MitraController::class)->names('manajemen.mitra');
+            Route::post('mitra/import', [MitraController::class, 'import'])->name('manajemen.mitra.import');
+            
+            // Master Kegiatan
+            Route::resource('kegiatan', KegiatanController::class)->names('manajemen.kegiatan');
+        });
+    });
+
+    // 2. Penugasan & Progres (Katim)
+    Route::middleware('can:access-assignment')->group(function () {
+        Route::prefix('penugasan-mitra')->group(function () {
+            Route::get('/', [PenugasanController::class, 'index'])->name('penugasan-mitra.index');
+            Route::get('/create', [PenugasanController::class, 'create'])->name('penugasan-mitra.create');
+            Route::post('/store', [PenugasanController::class, 'store'])->name('penugasan-mitra.store');
+            Route::get('/{id}/edit', [PenugasanController::class, 'edit'])->name('penugasan-mitra.edit');
+            Route::put('/{id}', [PenugasanController::class, 'update'])->name('penugasan-mitra.update');
+            Route::delete('/{id}', [PenugasanController::class, 'destroy'])->name('penugasan-mitra.destroy');
+            
+            // AJAX Check Quota
+            Route::get('/check-quota', [PenugasanController::class, 'checkQuota'])->name('penugasan-mitra.check-quota');
+            Route::post('/{id}/update-status-tugas', [PenugasanController::class, 'updateStatusTugas'])->name('penugasan-mitra.update-status-tugas');
+            
+            // Generate SPK
+            Route::get('/{id}/spk', [PenugasanController::class, 'generateSPK'])->name('penugasan-mitra.spk');
+        });
+    });
+
+    // Rekap Honor (Akses Luas: Katim, Kepala, Admin, Subbag Umum)
+    Route::middleware('can:access-mitra-rekap')->group(function () {
+        Route::get('/penugasan-mitra/rekap-honor', [RekapController::class, 'rekapHonor'])->name('rekap-honor.index');
+        Route::get('/penugasan-mitra/rekap-honor/detail', [RekapController::class, 'getDetailHonor'])->name('rekap-honor.detail');
+    });
+
+    // 3. Gatekeeper & Realisasi (Tim Umum)
+    Route::middleware('can:access-absensi')->group(function () {
+        Route::prefix('honorarium')->group(function () {
+            Route::get('/verifikasi', [PenugasanController::class, 'gatekeeperIndex'])->name('honorarium.verifikasi');
+            Route::post('/verifikasi/{id}/status', [PenugasanController::class, 'updateStatusDokumen'])->name('honorarium.update-status');
+            Route::get('/pembayaran', [PenugasanController::class, 'paymentIndex'])->name('honorarium.pembayaran');
+            Route::post('/pembayaran/bulk-confirm', [PenugasanController::class, 'bulkConfirmPayment'])->name('honorarium.bulk-confirm');
         });
     });
 

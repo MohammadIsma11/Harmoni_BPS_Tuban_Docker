@@ -4,4 +4,4 @@
 /* Warna Biru BPS untuk header dan button */
 .bg-bps-blue { background: linear-gradient(135deg, #0058a8 0%, #007bff 100%); }
 .btn-bps-primary { background: #0058a8; color: white; transition: 0.3s; border: none; }
-.btn-bps-primary:hover { background: #004481; color: white; transform: translateY(-2px); }
+.btn-bps-primary:hover { background: #004481; color: white; }
