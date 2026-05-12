@@ -81,7 +81,7 @@
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="small fw-bold mb-2" id="label-event-date">Tanggal Mulai<span class="required-star">*</span></label>
-                    <input type="date" name="event_date" id="event_date" class="form-control" required>
+                    <input type="date" name="event_date" id="event_date" class="form-control" required onchange="$('#end_date').attr('min', this.value)">
                 </div>
                 <div class="col-md-6" id="end-date-container">
                     <label class="small fw-bold mb-2">Tanggal Selesai<span class="required-star">*</span></label>
@@ -218,9 +218,17 @@
                         <div class="form-section-title mb-0" style="flex: 1;"><i class="fas fa-users"></i>3. Daftar Petugas</div>
                         <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold" id="btnSelectAll">Pilih Semua</button>
                     </div>
+
+                    {{-- SEARCH MENU --}}
+                    <div class="mb-3">
+                        <div class="input-group input-group-sm shadow-sm rounded-pill overflow-hidden border">
+                            <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="searchPetugas" class="form-control border-0 px-2" placeholder="Cari nama petugas...">
+                        </div>
+                    </div>
                     
                     <div class="user-selection-container shadow-sm mb-4 border rounded-3 overflow-hidden">
-                        <div class="user-selection-box" style="max-height: 600px; overflow-y: auto;">
+                        <div class="user-selection-box" style="max-height: 600px; overflow-y: auto;" id="petugasList">
                             
                             {{-- AKUN KHUSUS (ketua.tim) --}}
                             @if($akunKhusus)
@@ -251,7 +259,13 @@
                             @endforeach
                         </div>
                     </div>
-                    <button type="button" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg" id="btnConfirmSubmit">Konfirmasi Penugasan</button>
+                    <button type="button" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg" id="btnConfirmSubmit">
+                        <span id="btnText">Konfirmasi Penugasan</span>
+                        <span id="btnLoader" class="d-none">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Sedang Memproses...
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -338,6 +352,20 @@
             $(this).html(!isAllChecked ? 'Batal Semua' : 'Pilih Semua');
         });
 
+        // --- LIVE SEARCH PETUGAS ---
+        $('#searchPetugas').on('keyup', function() {
+            const val = $(this).val().toLowerCase();
+            $('#petugasList .petugas-row').each(function() {
+                const name = $(this).data('name').toLowerCase();
+                $(this).toggle(name.includes(val));
+            });
+            // Sembunyikan label grup jika semua anggotanya terfilter
+            $('.user-group-label').each(function() {
+                let hasVisible = $(this).nextUntil('.user-group-label', '.petugas-row:visible').length > 0;
+                $(this).toggle(hasVisible);
+            });
+        });
+
         $('#btnConfirmSubmit').on('click', function() {
             const formEl = document.getElementById('formAssignment');
             if (!formEl.checkValidity()) { formEl.reportValidity(); return; }
@@ -346,6 +374,21 @@
             if (selected.length === 0) { 
                 Swal.fire({ title: 'Oops!', text: 'Pilih minimal satu petugas.', icon: 'warning' }); 
                 return; 
+            }
+
+            // --- VALIDASI TANGGAL (SELESAI >= MULAI) ---
+            const startVal = $('#event_date').val();
+            const endVal = $('#end_date').val();
+            const activityType = $('#activity_type_id').val();
+
+            if ((activityType == 1 || activityType == 3) && endVal < startVal) {
+                Swal.fire({ 
+                    title: 'Kesalahan Tanggal', 
+                    text: 'Tanggal selesai tidak boleh kurang dari tanggal mulai.', 
+                    icon: 'error',
+                    confirmButtonColor: '#0058a8'
+                });
+                return;
             }
 
             // --- CEK KONFLIK SEBELUM SUBMIT ---
@@ -391,6 +434,14 @@
                 </div>`;
             }
 
+            const executeSubmit = () => {
+                // Tampilkan Loading State
+                $('#btnText').addClass('d-none');
+                $('#btnLoader').removeClass('d-none');
+                $('#btnConfirmSubmit').prop('disabled', true);
+                formEl.submit();
+            };
+
             if (conflictHtml !== "") {
                 Swal.fire({
                     title: 'Konfirmasi Penugasan',
@@ -403,11 +454,11 @@
                     cancelButtonText: 'Batal / Cek Lagi'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        formEl.submit();
+                        executeSubmit();
                     }
                 });
             } else {
-                formEl.submit();
+                executeSubmit();
             }
         });
 

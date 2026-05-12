@@ -8,6 +8,7 @@
                 <h3 class="fw-bold text-dark mb-1">Manajemen Master Mitra</h3>
                 <p class="text-muted small mb-0">Kelola identitas mitra BPS Tuban dan akun Portal Mitra.</p>
             </div>
+            @if(Auth::user()->role === 'Admin')
             <div class="d-flex flex-wrap gap-2">
                 <form id="truncateForm" action="{{ route('manajemen.mitra.truncate') }}" method="POST">
                     @csrf
@@ -18,10 +19,8 @@
                 <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="fas fa-file-excel me-2"></i>Import Excel
                 </button>
-                <a href="{{ route('manajemen.mitra.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
-                    <i class="fas fa-user-plus me-2"></i>Tambah Mitra Baru
-                </a>
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -86,7 +85,9 @@
                     <th class="py-3" style="min-width: 130px;">No Telp</th>
                     <th class="py-3" style="min-width: 150px;">SOBAT ID</th>
                     <th class="py-3" style="min-width: 200px;">Email</th>
+                    @if(Auth::user()->role === 'Admin')
                     <th class="pe-4 py-3 text-end sticky-col-end shadow-sm" style="width: 100px; background: #f8f9fa;">AKSI</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -122,6 +123,7 @@
                     <td><div class="small">{{ $mitra->no_telp ?: '-' }}</div></td>
                     <td><span class="badge bg-light text-primary border font-monospace small">{{ $mitra->sobat_id }}</span></td>
                     <td><div class="small">{{ $mitra->email ?: '-' }}</div></td>
+                    @if(Auth::user()->role === 'Admin')
                     <td class="pe-4 text-end sticky-col-end" style="background: white;">
                         <div class="d-inline-flex gap-1">
                             <a href="{{ route('manajemen.mitra.edit', $mitra->sobat_id) }}" class="p-1" title="Edit">
@@ -136,10 +138,11 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="19" class="text-center py-5">
+                    <td colspan="{{ Auth::user()->role === 'Admin' ? 19 : 18 }}" class="text-center py-5">
                         <div class="text-muted">
                             <i class="fas fa-user-slash fs-1 d-block mb-3 opacity-25"></i>
                             <h6 class="fw-bold">Belum ada data mitra</h6>
@@ -156,6 +159,7 @@
     </div>
 </div>
 
+@push('modals')
 <!-- Import Modal Premium -->
 <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -172,7 +176,7 @@
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('manajemen.mitra.import') }}" method="POST" enctype="multipart/form-data">
+            <form id="importForm" action="{{ route('manajemen.mitra.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="alert bg-success bg-opacity-10 border-0 rounded-4 p-3 mb-4">
@@ -226,6 +230,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 <style>
     .animate-up { animation: fadeInUp 0.5s ease-out backwards; }
@@ -324,6 +329,24 @@
             }
         });
     }
+
+    // Handle Import Loading
+    document.getElementById('importForm').addEventListener('submit', function() {
+        // Tutup modal dulu
+        const modal = bootstrap.Modal.getInstance(document.getElementById('importModal'));
+        if (modal) modal.hide();
+
+        Swal.fire({
+            title: 'Sedang Memproses...',
+            html: 'Mohon tunggu sebentar, sistem sedang melakukan sinkronisasi data mitra.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    });
 </script>
 @endpush
 @endsection

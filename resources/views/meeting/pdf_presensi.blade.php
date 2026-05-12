@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <title>Daftar Hadir - {{ $meeting->title }}</title>
     <style>
-        {!! file_get_contents(resource_path('css/pages/pdf-presensi.css')) !!}
+        {!! file_get_contents(public_path('css/pages/pdf-presensi.css')) !!}
     </style>
 </head>
 <body>

@@ -192,6 +192,14 @@
                             <i class="fas fa-users"></i>3. Daftar Petugas
                             <div type="button" id="btnSelectAll" class="ms-auto"><i class="fas fa-check-double me-1"></i> Pilih Semua</div>
                         </div>
+
+                        {{-- SEARCH MENU --}}
+                        <div class="mb-3 px-2">
+                            <div class="input-group input-group-sm shadow-sm rounded-pill overflow-hidden border">
+                                <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" id="searchPetugas" class="form-control border-0 px-2" placeholder="Cari nama petugas...">
+                            </div>
+                        </div>
                         
                         @php
                             $currentGroupIds = \App\Models\Agenda::where('title', $assignment->title)
@@ -201,7 +209,7 @@
                         @endphp
 
                         <div class="user-selection-container shadow-sm mb-4">
-                            <div class="user-selection-box p-2">
+                            <div class="user-selection-box p-2" id="petugasList">
                                 @php $groups = ['Kepala BPS' => $kepalas, 'Ketua Tim' => $katims, 'Staf' => $pegawais]; @endphp
                                 @foreach($groups as $label => $users)
                                     <div class="user-group-label">{{ $label }}</div>

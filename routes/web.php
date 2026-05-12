@@ -7,17 +7,39 @@ use App\Http\Controllers\{
     AnggotaController, AssignmentController, AbsensiController, 
     HistoryController, SuperAccessController, NotificationController,
     MitraController, KegiatanController, PenugasanController, ModuleController,
-    SSOController, TematikController
+    SSOController, TematikController, PortalController
 };
+use App\Http\Controllers\KmsController;
+use App\Http\Controllers\TicketController;
 
 /*
 |--------------------------------------------------------------------------
 | Guest Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/', [PortalController::class, 'index'])->name('portal');
+
 Route::middleware('guest')->group(function () {
-    Route::get('/', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'loginAction'])->name('login.action');
+});
+
+/* --- PUBLIC MODULES (Accessible by Guest) --- */
+
+// 1. SEpintu Ticket Public
+Route::prefix('tickets')->name('ticket.public.')->group(function () {
+    Route::get('/', [TicketController::class, 'publicIndex'])->name('index');
+    Route::get('/create', [TicketController::class, 'create'])->name('create');
+    Route::post('/', [TicketController::class, 'store'])->name('store');
+    Route::get('/success', [TicketController::class, 'success'])->name('success');
+    Route::get('/track', [TicketController::class, 'trackForm'])->name('track.form');
+    Route::post('/track', [TicketController::class, 'track'])->name('track');
+});
+
+// 2. SEpintu KMS Public
+Route::prefix('kms')->name('kms.public.')->group(function () {
+    Route::get('/', [KmsController::class, 'publicIndex'])->name('index');
+    Route::get('/article/{article:slug}', [KmsController::class, 'show'])->name('show');
 });
 
 /*
@@ -85,6 +107,7 @@ Route::middleware('auth')->group(function () {
     /* --- ROLE: BUKAN ADMIN (Dashboard & Monitoring) --- */
     Route::middleware('can:is-not-admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/kepala', [DashboardController::class, 'kepalaDashboard'])->name('dashboard.kepala');
         Route::get('/monitoring', [DashboardController::class, 'monitoring'])->name('monitoring.index');
         Route::get('/agenda', [DashboardController::class, 'allAgenda'])->name('agenda.all');
     });
@@ -149,8 +172,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/check-quota', [PenugasanController::class, 'checkQuota'])->name('penugasan-mitra.check-quota');
             Route::post('/{id}/update-status-tugas', [PenugasanController::class, 'updateStatusTugas'])->name('penugasan-mitra.update-status-tugas');
             
-            // Generate SPK
+            // Generate SPK & BAST
             Route::get('/{id}/spk', [PenugasanController::class, 'generateSPK'])->name('penugasan-mitra.spk');
+            Route::get('/{id}/bast', [PenugasanController::class, 'generateBAST'])->name('penugasan-mitra.bast');
         });
     });
 
@@ -158,6 +182,23 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:access-mitra-rekap')->group(function () {
         Route::get('/penugasan-mitra/rekap-honor', [RekapController::class, 'rekapHonor'])->name('rekap-honor.index');
         Route::get('/penugasan-mitra/rekap-honor/detail', [RekapController::class, 'getDetailHonor'])->name('rekap-honor.detail');
+    });
+
+    // 4. SEpintu Ticket Management (Admin/Pegawai)
+    Route::prefix('admin/tickets')->name('ticket.admin.')->group(function () {
+        Route::get('/', [TicketController::class, 'index'])->name('index');
+        Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/reply', [TicketController::class, 'storeReply'])->name('reply');
+        Route::patch('/{ticket}', [TicketController::class, 'update'])->name('update');
+        Route::post('/{ticket}/push', [TicketController::class, 'pushToKms'])->name('push');
+    });
+
+    // 5. SEpintu KMS Management (Admin/Pegawai)
+    Route::prefix('admin/kms')->name('kms.admin.')->group(function () {
+        Route::get('/', [KmsController::class, 'adminIndex'])->name('index');
+        Route::get('/{article}/edit', [KmsController::class, 'edit'])->name('edit');
+        Route::put('/{article}', [KmsController::class, 'update'])->name('update');
+        Route::delete('/{article}', [KmsController::class, 'destroy'])->name('destroy');
     });
 
     // 3. Gatekeeper & Realisasi (Tim Umum)

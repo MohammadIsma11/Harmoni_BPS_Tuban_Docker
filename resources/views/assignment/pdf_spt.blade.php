@@ -1,9 +1,10 @@
+@php \Carbon\Carbon::setLocale('id'); @endphp
 <!DOCTYPE html>
 <html>
 <head>
     <title>{{ ($agenda->activity_type_id == 1) ? 'SPT' : 'Memorandum' }} - {{ $agenda->nomor_surat_tugas }}</title>
     <style>
-        {!! file_get_contents(resource_path('css/pages/pdf-spt.css')) !!}
+        {!! file_get_contents(public_path('css/pages/pdf-spt.css')) !!}
     </style>
 </head>
 <body>

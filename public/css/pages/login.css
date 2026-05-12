@@ -131,3 +131,43 @@ body {
     font-weight: 700;
     letter-spacing: 1px;
 }
+
+.btn-public {
+    border-radius: 18px;
+    padding: 15px 10px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    transition: all 0.3s;
+    border: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-ticket {
+    background: #f0f7ff;
+    color: #0058a8;
+}
+.btn-ticket:hover {
+    background: #0058a8;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.btn-kms {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+.btn-kms:hover {
+    background: #16a34a;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.public-portal-wrapper {
+    position: relative;
+    z-index: 1;
+}

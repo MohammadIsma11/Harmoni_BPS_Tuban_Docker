@@ -121,6 +121,20 @@ $(document).ready(function() {
         $(this).html(!isAllChecked ? '<i class="fas fa-times me-1"></i> Batal Semua' : '<i class="fas fa-check-double me-1"></i> Pilih Semua');
     });
 
+    // --- LIVE SEARCH PETUGAS ---
+    $('#searchPetugas').on('keyup', function() {
+        const val = $(this).val().toLowerCase();
+        $('#petugasList .petugas-row').each(function() {
+            const name = $(this).data('name').toLowerCase();
+            $(this).toggle(name.includes(val));
+        });
+        // Sembunyikan label grup jika semua anggotanya terfilter
+        $('.user-group-label').each(function() {
+            let hasVisible = $(this).nextUntil('.user-group-label', '.petugas-row:visible').length > 0;
+            $(this).toggle(hasVisible);
+        });
+    });
+
     function checkAvailability() {
         const start = $('#event_date').val();
         const end = $('#end_date').val() || start;
@@ -159,6 +173,21 @@ $(document).ready(function() {
         const selected = $('.user-check:checked');
         if (selected.length === 0) {
             Swal.fire({ title: 'Petugas Belum Dipilih!', text: 'Pilih minimal satu petugas di daftar kanan.', icon: 'warning', confirmButtonColor: '#0058a8' });
+            return;
+        }
+
+        // --- VALIDASI TANGGAL (SELESAI >= MULAI) ---
+        const startVal = $('#event_date').val();
+        const endVal = $('#end_date').val();
+        const activityType = $('#activity_type_id').val();
+
+        if ((activityType == 1 || activityType == 3) && endVal < startVal) {
+            Swal.fire({ 
+                title: 'Kesalahan Tanggal', 
+                text: 'Tanggal selesai tidak boleh kurang dari tanggal mulai.', 
+                icon: 'error',
+                confirmButtonColor: '#0058a8'
+            });
             return;
         }
 

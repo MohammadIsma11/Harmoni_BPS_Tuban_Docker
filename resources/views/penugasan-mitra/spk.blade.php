@@ -236,21 +236,23 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach($penugasans as $p)
                 <tr>
-                    <td style="text-align: left;">{{ $penugasan->nama_kegiatan_full }}</td>
+                    <td style="text-align: left;">{{ $p->nama_kegiatan_full }}</td>
                     <td>
-                        {{ Carbon\Carbon::parse($penugasan->tgl_mulai)->format('d/m/Y') }} s.d <br>
-                        {{ Carbon\Carbon::parse($penugasan->tgl_selesai_target)->format('d/m/Y') }}
+                        {{ Carbon\Carbon::parse($p->tgl_mulai)->format('d/m/Y') }} s.d <br>
+                        {{ Carbon\Carbon::parse($p->tgl_selesai_target)->format('d/m/Y') }}
                     </td>
-                    <td>{{ $penugasan->volume }}</td>
-                    <td>{{ $penugasan->satuan }}</td>
-                    <td class="text-right">Rp {{ number_format($penugasan->total_honor_tugas, 0, ',', '.') }}</td>
+                    <td>{{ $p->volume }}</td>
+                    <td>{{ $p->satuan }}</td>
+                    <td class="text-right">Rp {{ number_format($p->total_honor_tugas, 0, ',', '.') }}</td>
                 </tr>
+                @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="4" class="fw-bold text-right">TOTAL NILAI PERJANJIAN</td>
-                    <td class="fw-bold text-right">Rp {{ number_format($penugasan->total_honor_tugas, 0, ',', '.') }}</td>
+                    <td class="fw-bold text-right">Rp {{ number_format($totalHonor, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td colspan="5" style="text-align: left; background: #f9f9f9;">

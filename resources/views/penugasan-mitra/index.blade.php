@@ -28,6 +28,7 @@
                         <th class="text-muted small fw-bold py-3 text-center">TOTAL HONOR</th>
                         <th class="text-muted small fw-bold py-3 text-center">TARGET SELESAI</th>
                         <th class="text-muted small fw-bold py-3 text-center">PROGRES</th>
+                        <th class="text-muted small fw-bold py-3 text-center">DOKUMEN</th>
                         <th class="pe-4 text-muted small fw-bold py-3 text-end">AKSI</th>
                     </tr>
                 </thead>
@@ -59,24 +60,31 @@
                                 <span class="badge bg-warning text-dark rounded-pill px-3">Progres</span>
                             @endif
                         </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a href="{{ route('penugasan-mitra.spk', $p->id) }}" target="_blank" class="btn btn-primary btn-xs py-1 px-3 rounded-pill shadow-sm" style="font-size: 0.65rem;">
+                                    <i class="fas fa-print me-1"></i>SPK
+                                </a>
+                                <a href="{{ route('penugasan-mitra.bast', $p->id) }}" target="_blank" class="btn btn-secondary btn-xs py-1 px-3 rounded-pill shadow-sm" style="font-size: 0.65rem;">
+                                    <i class="fas fa-file-contract me-1"></i>BAST
+                                </a>
+                            </div>
+                        </td>
                         <td class="pe-4 text-end">
                             @php
                                 $docStatusClass = ['Pending' => 'warning', 'Lengkap' => 'success', 'Revisi' => 'danger'][$p->status_dokumen] ?? 'secondary';
                             @endphp
                             <div class="d-flex flex-column align-items-end">
                                 <span class="badge bg-{{ $docStatusClass }} rounded-pill px-3 mb-2">{{ $p->status_dokumen }}</span>
-                                @if($p->status_tugas == 'Progres')
-                                    <form action="{{ route('penugasan-mitra.update-status-tugas', $p->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" name="status" value="Selesai" class="btn btn-outline-success btn-xs py-0 px-2 rounded-pill shadow-sm mb-2" style="font-size: 0.65rem;" onclick="return confirm('Tandai tugas ini sebagai Selesai?')">
-                                            <i class="fas fa-flag-checkered me-1"></i>Selesaikan
-                                        </button>
-                                    </form>
-                                @endif
                                 <div class="d-flex gap-1 justify-content-end">
-                                    <a href="{{ route('penugasan-mitra.spk', $p->id) }}" target="_blank" class="btn btn-outline-primary btn-xs py-1 px-3 rounded-pill shadow-sm" style="font-size: 0.65rem;">
-                                        <i class="fas fa-print me-1"></i>SPK
-                                    </a>
+                                    @if($p->status_tugas == 'Progres')
+                                        <form action="{{ route('penugasan-mitra.update-status-tugas', $p->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" name="status" value="Selesai" class="btn btn-outline-success btn-xs py-1 px-2 rounded-pill shadow-sm" style="font-size: 0.65rem;" onclick="return confirm('Tandai tugas ini sebagai Selesai?')">
+                                                <i class="fas fa-check me-1"></i>Selesai
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form action="{{ route('penugasan-mitra.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Hapus penugasan ini? Tindakan ini tidak dapat dibatalkan.')">
                                         @csrf
                                         @method('DELETE')

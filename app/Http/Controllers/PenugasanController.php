@@ -189,30 +189,82 @@ class PenugasanController extends Controller
     }
 
     /**
-     * Generate SPK (Adaptation from Malowopati/Bojonegoro style)
+     * Generate SPK (Support multiple activities grouped by no_spk)
      */
     public function generateSPK($id)
     {
-        $penugasan = Penugasan::with(['mitra', 'anggaran.team'])->findOrFail($id);
+        $primary = Penugasan::with(['mitra', 'anggaran.team'])->findOrFail($id);
         
-        // Cari Katim dari tim yang bersangkutan (Pihak Pertama)
-        $teamId = $penugasan->team_id ?? ($penugasan->anggaran->team_id ?? null);
-        
-        $katim = \App\Models\User::where('team_id', $teamId)
-            ->where('role', 'Katim')
-            ->first();
-            
-        if (!$katim) {
-            // Fallback: Cari Kepala BPS atau Admin
-            $katim = \App\Models\User::where('role', 'Kepala')->first() 
-                  ?? \App\Models\User::where('role', 'Admin')->first();
+        // Cari semua kegiatan untuk mitra ini yang memiliki nomor SPK yang sama
+        $penugasans = Penugasan::with(['mitra', 'anggaran.team'])
+            ->where('mitra_id', $primary->mitra_id)
+            ->where('no_spk', $primary->no_spk)
+            ->whereNotNull('no_spk')
+            ->get();
+
+        // Jika nomor SPK kosong, tampilkan yang ini saja
+        if ($penugasans->isEmpty()) {
+            $penugasans = collect([$primary]);
         }
 
-        $totalHonor = $penugasan->total_honor_tugas;
+        // Hitung total honor dari semua kegiatan dalam SPK ini
+        $totalHonor = $penugasans->sum('total_honor_tugas');
         $totalHonorTerbilang = $this->terbilang($totalHonor) . " Rupiah";
-        $currentYear = 2026; // Sesuai permintaan user
+        $currentYear = 2026; 
 
-        return view('penugasan-mitra.spk', compact('penugasan', 'katim', 'totalHonorTerbilang', 'currentYear'));
+        // Ambil Katim dari tim yang bersangkutan (Pihak Pertama)
+        $teamId = $primary->team_id ?? ($primary->anggaran->team_id ?? null);
+        $katim = \App\Models\User::where('team_id', $teamId)
+            ->where('role', 'Katim')
+            ->first() ?? \App\Models\User::where('role', 'Kepala')->first() 
+                   ?? \App\Models\User::where('role', 'Admin')->first();
+
+        return view('penugasan-mitra.spk', [
+            'penugasan' => $primary, // Untuk header data mitra
+            'penugasans' => $penugasans, // List kegiatan
+            'katim' => $katim,
+            'totalHonor' => $totalHonor,
+            'totalHonorTerbilang' => $totalHonorTerbilang,
+            'currentYear' => $currentYear
+        ]);
+    }
+
+    /**
+     * Generate BAST (Support multiple activities grouped by no_bast)
+     */
+    public function generateBAST($id)
+    {
+        $primary = Penugasan::with(['mitra', 'anggaran.team'])->findOrFail($id);
+        
+        // Cari semua kegiatan untuk mitra ini yang memiliki nomor BAST yang sama
+        $penugasans = Penugasan::with(['mitra', 'anggaran.team'])
+            ->where('mitra_id', $primary->mitra_id)
+            ->where('no_bast', $primary->no_bast)
+            ->whereNotNull('no_bast')
+            ->get();
+
+        if ($penugasans->isEmpty()) {
+            $penugasans = collect([$primary]);
+        }
+
+        $totalHonor = $penugasans->sum('total_honor_tugas');
+        $totalHonorTerbilang = $this->terbilang($totalHonor) . " Rupiah";
+        $currentYear = 2026;
+
+        $teamId = $primary->team_id ?? ($primary->anggaran->team_id ?? null);
+        $katim = \App\Models\User::where('team_id', $teamId)
+            ->where('role', 'Katim')
+            ->first() ?? \App\Models\User::where('role', 'Kepala')->first() 
+                   ?? \App\Models\User::where('role', 'Admin')->first();
+
+        return view('penugasan-mitra.bast', [
+            'penugasan' => $primary,
+            'penugasans' => $penugasans,
+            'katim' => $katim,
+            'totalHonor' => $totalHonor,
+            'totalHonorTerbilang' => $totalHonorTerbilang,
+            'currentYear' => $currentYear
+        ]);
     }
 
     /**

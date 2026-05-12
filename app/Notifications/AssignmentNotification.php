@@ -20,7 +20,7 @@ class AssignmentNotification extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        return ['database'];
     }
 
     public function toMail($notifiable)

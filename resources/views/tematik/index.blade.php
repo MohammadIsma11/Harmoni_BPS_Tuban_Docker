@@ -246,8 +246,14 @@
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-between mt-2 px-1">
-                                                    <small class="text-muted">Gunakan zoom untuk presisi lebih tinggi</small>
+                                                    <small class="text-muted">Klik pada peta untuk menentukan titik presisi</small>
                                                     <button type="button" id="btn-recenter" class="btn btn-link btn-sm p-0 text-decoration-none">Recenter Tuban</button>
+                                                </div>
+                                                <div id="form-coord-info" class="mt-2 p-2 bg-light rounded-3 border d-none animate-up">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <small class="text-muted fw-bold">KOORDINAT PRESISI:</small>
+                                                        <code id="txt-latlng-small" class="text-primary fw-bold" style="font-size: 0.75rem;">-</code>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -383,7 +389,10 @@ $(document).ready(function() {
         formMap = L.map('form-map', { zoomControl: false }).setView([-6.89, 112.06], 11);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(formMap);
         
-        // formMap.on('click', function(e) { ... }); // DISABLED as per user request
+        // Enable Click to select location
+        formMap.on('click', function(e) {
+            updateFormLocation(e.latlng.lat, e.latlng.lng);
+        });
         
         // Use a shared function for both map and search updates
         window.updateFormLocation = function(lat, lng, forcedDetails = null) {
@@ -411,6 +420,10 @@ $(document).ready(function() {
             $('#in-desa').val(details.desa || '');
             $('#in-sls').val(details.sls || '');
             
+            // Update Coordinate Display below map
+            $('#txt-latlng-small').text(`${lat.toFixed(7)}, ${lng.toFixed(7)}`);
+            $('#form-coord-info').removeClass('d-none').show();
+
             let displayLoc = `${details.kec}`;
             if (details.desa) displayLoc += `, ${details.desa}`;
             if (details.sls) displayLoc += ` (${details.sls})`;

@@ -2,8 +2,8 @@
 set -e
 
 # Wait for database to be ready
-echo "Waiting for database (db:5432) to be ready..."
-until nc -z db 5432; do
+echo "Waiting for database ($DB_HOST:$DB_PORT) to be ready..."
+until nc -z $DB_HOST $DB_PORT; do
   echo "Database is unavailable - sleeping"
   sleep 2
 done
@@ -22,6 +22,7 @@ fi
 # Create storage link if not exists (force recreate for Docker/Linux)
 echo "Recreating Storage Link..."
 rm -rf public/storage
+mkdir -p storage/app/public
 php artisan storage:link --no-interaction
 
 # Run migrations
@@ -36,6 +37,8 @@ php artisan view:cache
 
 # Correct permissions for storage and bootstrap/cache
 echo "Fixing Permissions..."
+mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache
+chmod 755 public
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 777 storage bootstrap/cache
 

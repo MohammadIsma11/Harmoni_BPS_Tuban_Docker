@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Opsional: Jika ingin mengarahkan user yang belum login ke halaman tertentu
         $middleware->redirectTo(
-            guests: '/',
+            guests: '/login',
             users: function () {
                 // Logika redirect cerdas jika user SUDAH login tapi coba akses /login lagi
                 if (auth()->user()->role === 'Admin') {

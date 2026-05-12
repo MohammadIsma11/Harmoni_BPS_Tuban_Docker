@@ -55,6 +55,12 @@
         </button>
     </form>
     
+    <div class="text-center mt-4">
+        <a href="{{ route('portal') }}" class="text-decoration-none small fw-bold text-muted">
+            <i class="fas fa-arrow-left me-1"></i> Kembali ke Portal Publik
+        </a>
+    </div>
+
     <div class="text-center footer-text">
         <p class="mb-0 text-uppercase">© 2026 BPS KABUPATEN TUBAN</p>
     </div>

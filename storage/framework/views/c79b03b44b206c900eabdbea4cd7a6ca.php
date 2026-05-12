@@ -16,7 +16,12 @@
     <link rel="stylesheet" href="<?php echo e(asset('css/layouts/app-layout.css')); ?>">
     
     
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body>
@@ -64,48 +69,27 @@
     <nav class="mt-2 text-dark">
         <?php
             $role = Auth::user()->role;
-            $mode = session('dashboard_mode', 'harmoni');
-            
-            // Mitra selalu di mode honor
-            if ($role === 'Mitra') {
-                $mode = 'honor';
-            }
         ?>
 
         
-        <?php if($role !== 'Mitra' && $role !== 'Admin'): ?>
-            <div class="px-3 mb-3">
-                <form action="<?php echo e(route('module.switch')); ?>" method="POST">
-                    <?php echo csrf_field(); ?>
-                    <?php if($mode === 'harmoni'): ?>
-                        <input type="hidden" name="mode" value="honor">
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm animate-up">
-                            <i class="fas fa-exchange-alt me-2"></i> <span>Modulo Honor</span>
-                        </button>
-                    <?php else: ?>
-                        <input type="hidden" name="mode" value="harmoni">
-                        <button type="submit" class="btn btn-outline-primary w-100 rounded-pill py-2 animate-up">
-                            <i class="fas fa-home me-2"></i> <span>Kembali ke Harmoni</span>
-                        </button>
-                    <?php endif; ?>
-                </form>
-            </div>
-            <div class="menu-divider"></div>
-        <?php endif; ?>
-
-        
-        <?php if($mode === 'harmoni'): ?>
             
             <?php if($role != 'Admin'): ?>
                 <div class="menu-divider mt-0">Menu Utama</div>
                 <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
                     <i class="fas fa-th-large me-2"></i> <span>Dashboard</span>
                 </a>
+
+                
+                <?php if($role == 'Kepala' || $role == 'Katim'): ?>
+                <a href="<?php echo e(route('dashboard.kepala')); ?>" class="nav-link <?php echo e(Route::is('dashboard.kepala') ? 'active' : ''); ?>" 
+                   style="background: linear-gradient(45deg, #0d6efd, #00d2ff); color: white !important; margin: 10px; border-radius: 12px; box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);">
+                    <i class="fas fa-brain me-2" style="color: white;"></i> 
+                    <span class="fw-bold">AI Workload Analysis</span>
+                    <span class="badge bg-white text-primary ms-auto" style="font-size: 0.6rem;">SMART</span>
+                </a>
+                <?php endif; ?>
                 <a href="<?php echo e(route('monitoring.index')); ?>" class="nav-link">
                     <i class="fas fa-calendar-check me-2"></i> <span>Timeline Agenda</span>
-                </a>
-                <a href="<?php echo e(route('tematik.index')); ?>" class="nav-link <?php echo e(Route::is('tematik.*') ? 'active' : ''); ?>">
-                    <i class="fas fa-map-marked-alt me-2 text-success"></i> <span>Monitoring Tematik</span>
                 </a>
             <?php endif; ?>
 
@@ -141,19 +125,14 @@
                         <span class="badge bg-danger rounded-pill badge-notif"><?php echo e($countNotif); ?></span>
                     <?php endif; ?>
                 </a>
+
             <?php endif; ?>
 
             
             <?php if($role == 'Admin' || $role == 'Kepala'): ?>
-                <div class="menu-divider">Pengaturan & Master</div>
+                <div class="menu-divider">Administrasi & Master</div>
                 <a href="<?php echo e(route('manajemen.anggota')); ?>" class="nav-link">
                     <i class="fas fa-users-cog me-2"></i> <span>Manajemen User</span>
-                </a>
-                <a href="<?php echo e(route('manajemen.mitra.index')); ?>" class="nav-link">
-                    <i class="fas fa-id-card me-2"></i> <span>Master Mitra</span>
-                </a>
-                <a href="<?php echo e(route('manajemen.kegiatan.index')); ?>" class="nav-link">
-                    <i class="fas fa-tasks me-2"></i> <span>Master Kegiatan</span>
                 </a>
             <?php endif; ?>
 
@@ -172,6 +151,19 @@
                 <div class="menu-divider">Pelaksanaan</div>
                 
                 
+                <?php
+                    $countLapangan = \App\Models\Agenda::where('assigned_to', Auth::id())
+                        ->where('activity_type_id', 1)
+                        ->where('status_laporan', 'Pending')
+                        ->where(function($query) {
+                            $query->where('mode_surat', 'upload')
+                                  ->orWhere(function($q) {
+                                      $q->where('mode_surat', 'generate')
+                                        ->where('status_approval', 'Approved');
+                                  });
+                        })
+                        ->count();
+                ?>
                 <button class="nav-link collapsed" 
                         data-bs-toggle="collapse" data-bs-target="#menuLapangan">
                     <i class="fas fa-briefcase me-2"></i> 
@@ -184,6 +176,9 @@
                             <a href="<?php echo e(route('task.index')); ?>" class="nav-link small">
                                 <i class="fas fa-tasks me-2"></i> 
                                 <span>Daftar Tugas</span>
+                                <?php if($countLapangan > 0): ?>
+                                    <span class="badge bg-danger rounded-pill badge-notif ms-auto"><?php echo e($countLapangan); ?></span>
+                                <?php endif; ?>
                             </a>
                         </li>
                         <li>
@@ -195,6 +190,12 @@
                 </div>
 
                 
+                <?php
+                    $countDinas = \App\Models\Agenda::where('assigned_to', Auth::id())
+                        ->whereIn('activity_type_id', [2, 3])
+                        ->where('status_laporan', 'Pending')
+                        ->count();
+                ?>
                 <button class="nav-link collapsed" 
                         data-bs-toggle="collapse" data-bs-target="#menuRapat">
                     <i class="fas fa-handshake me-2"></i> 
@@ -207,6 +208,9 @@
                             <a href="<?php echo e(route('meeting.index')); ?>" class="nav-link small">
                                 <i class="fas fa-calendar-day me-2"></i> 
                                 <span>Jadwal Kegiatan</span>
+                                <?php if($countDinas > 0): ?>
+                                    <span class="badge bg-danger rounded-pill badge-notif ms-auto"><?php echo e($countDinas); ?></span>
+                                <?php endif; ?>
                             </a>
                         </li>
                         <li>
@@ -226,60 +230,9 @@
                 </a>
             <?php endif; ?>
 
-        
-        <?php else: ?>
-            <div class="menu-divider mt-0">Modul Honorarium</div>
-            <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
-                <i class="fas fa-tachometer-alt me-2"></i> <span>Dashboard Honor</span>
-            </a>
 
-            <?php if($role == 'Kepala' || $role == 'Katim'): ?>
-                <div class="menu-divider">Penugasan</div>
-                <a href="<?php echo e(route('penugasan-mitra.index')); ?>" class="nav-link">
-                    <i class="fas fa-user-plus me-2"></i> <span>Manajemen Penugasan</span>
-                </a>
-            <?php endif; ?>
 
-            <?php if($role == 'Kepala' || $role == 'Admin'): ?>
-                <div class="menu-divider">Master Data</div>
-                <a href="<?php echo e(route('manajemen.mitra.index')); ?>" class="nav-link">
-                    <i class="fas fa-id-card me-2"></i> <span>Master Mitra</span>
-                </a>
-                <a href="<?php echo e(route('manajemen.kegiatan.index')); ?>" class="nav-link">
-                    <i class="fas fa-tasks me-2"></i> <span>Master Kegiatan</span>
-                </a>
-            <?php endif; ?>
 
-            <?php if(Auth::user()->team && Auth::user()->team->nama_tim === 'Subbagian Umum'): ?>
-                <div class="menu-divider">Administrasi</div>
-                <a href="<?php echo e(route('honorarium.verifikasi')); ?>" class="nav-link">
-                    <i class="fas fa-file-invoice-dollar me-2"></i> <span>Verifikasi Dokumen</span>
-                </a>
-                <a href="<?php echo e(route('honorarium.pembayaran')); ?>" class="nav-link">
-                    <i class="fas fa-hand-holding-usd me-2"></i> <span>Pembayaran Honor</span>
-                </a>
-            <?php endif; ?>
-
-            
-            <?php
-                $isSubbagUmum = Auth::user()->team && Auth::user()->team->nama_tim === 'Subbagian Umum';
-            ?>
-            <?php if($role == 'Kepala' || $role == 'Katim' || $role == 'Admin' || $isSubbagUmum): ?>
-                <div class="menu-divider">Laporan & Rekap</div>
-                <a href="<?php echo e(route('rekap-honor.index')); ?>" class="nav-link <?php echo e(Route::is('rekap-honor.*') ? 'active' : ''); ?>">
-                    <i class="fas fa-chart-pie me-2"></i> <span>Rekap Honor Dasar</span>
-                </a>
-            <?php endif; ?>
-        <?php endif; ?>
-
-        
-        <div class="menu-divider">Smart Ecosystem</div>
-        <a href="http://localhost:8000/sso/login" class="nav-link" target="_blank">
-            <i class="fas fa-ticket-alt me-2 text-primary"></i> <span>SEpintu Ticket</span>
-        </a>
-        <a href="http://localhost:8001" class="nav-link" target="_blank">
-            <i class="fas fa-book-reader me-2 text-success"></i> <span>SEpintu KMS</span>
-        </a>
 
         
         <div class="menu-divider">Sistem</div>
@@ -302,7 +255,7 @@
             <div class="d-none d-md-block text-dark">
                 <h6 class="fw-bold mb-0">Harmoni BPS Tuban</h6>
                 <small class="text-muted" style="font-size: 0.7rem;">
-                    <?php if($mode === 'honor'): ?> Modul Manajemen Honorarium Mitra <?php else: ?> Sistem Manajemen Agenda & Rapat <?php endif; ?>
+                    Sistem Manajemen Agenda & Rapat
                 </small>
             </div>
         </div>
@@ -388,6 +341,8 @@
         <?php echo $__env->yieldContent('content'); ?>
     </div>
 </div>
+
+<?php echo $__env->yieldPushContent('modals'); ?>
 
 <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" class="d-none"><?php echo csrf_field(); ?></form>
 
