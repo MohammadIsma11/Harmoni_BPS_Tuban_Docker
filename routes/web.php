@@ -17,7 +17,9 @@ use App\Http\Controllers\TicketController;
 | Guest Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', [PortalController::class, 'index'])->name('portal');
+Route::get('/', function() {
+    return redirect()->route('login');
+})->name('portal');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

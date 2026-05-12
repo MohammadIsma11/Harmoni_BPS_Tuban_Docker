@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Login | HARMONI BPS Tuban</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="{{ asset('css/pages/login.css') }}">
+    <link rel="stylesheet" href="<?php echo e(asset('css/pages/login.css')); ?>">
 </head>
 <body>
 
@@ -20,7 +20,7 @@
 <div class="login-card">
     <div class="text-center mb-4">
         <div class="login-logo-wrapper">
-            <img src="{{ asset('img/logo_harmoni.png') }}" alt="Logo Harmoni" class="login-logo">
+            <img src="<?php echo e(asset('img/logo_harmoni.png')); ?>" alt="Logo Harmoni" class="login-logo">
         </div>
         
         <h3 class="brand-title mb-1">HARMONI <span style="font-weight: 400; color: var(--bps-blue);">BPS</span></h3>
@@ -29,14 +29,14 @@
 
 
 
-    <form action="{{ route('login.action') }}" method="POST">
-        @csrf <div class="mb-3">
+    <form action="<?php echo e(route('login.action')); ?>" method="POST">
+        <?php echo csrf_field(); ?> <div class="mb-3">
             <label class="form-label">Username</label>
             <div class="input-group">
                 <span class="input-group-text">
                     <i class="fas fa-user-circle"></i>
                 </span>
-                <input type="text" name="username" class="form-control" placeholder="Masukkan username" value="{{ old('username') }}" required autofocus autocomplete="username">
+                <input type="text" name="username" class="form-control" placeholder="Masukkan username" value="<?php echo e(old('username')); ?>" required autofocus autocomplete="username">
             </div>
         </div>
 
@@ -67,38 +67,38 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    @if(session('success'))
+    <?php if(session('success')): ?>
         Swal.fire({
             icon: 'success',
             title: 'Berhasil!',
-            text: "{{ session('success') }}",
+            text: "<?php echo e(session('success')); ?>",
             confirmButtonColor: '#0058a8',
         });
-    @endif
+    <?php endif; ?>
 
-    @if(session('error'))
+    <?php if(session('error')): ?>
         Swal.fire({
             icon: 'error',
             title: 'Gagal Masuk',
-            text: "{{ session('error') }}",
+            text: "<?php echo e(session('error')); ?>",
             confirmButtonColor: '#0058a8',
         });
-    @endif
+    <?php endif; ?>
 
-    @if($errors->any())
+    <?php if($errors->any()): ?>
         Swal.fire({
             icon: 'error',
             title: 'Validasi Gagal',
             html: `
                 <ul class="text-start small mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
             `,
             confirmButtonColor: '#0058a8',
         });
-    @endif
+    <?php endif; ?>
 </script>
 </body>
-</html>
+</html><?php /**PATH /var/www/resources/views/auth/login.blade.php ENDPATH**/ ?>
