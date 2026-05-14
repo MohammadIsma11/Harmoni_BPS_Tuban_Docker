@@ -6,11 +6,8 @@ use App\Http\Controllers\{
     MeetingController, TaskController, RekapController, 
     AnggotaController, AssignmentController, AbsensiController, 
     HistoryController, SuperAccessController, NotificationController,
-    MitraController, KegiatanController, PenugasanController, ModuleController,
-    SSOController, TematikController, PortalController
+    KegiatanController, SSOController
 };
-use App\Http\Controllers\KmsController;
-use App\Http\Controllers\TicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,42 +23,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'loginAction'])->name('login.action');
 });
 
-/* --- PUBLIC MODULES (Accessible by Guest) --- */
-
-// 1. SEpintu Ticket Public
-Route::prefix('tickets')->name('ticket.public.')->group(function () {
-    Route::get('/', [TicketController::class, 'publicIndex'])->name('index');
-    Route::get('/create', [TicketController::class, 'create'])->name('create');
-    Route::post('/', [TicketController::class, 'store'])->name('store');
-    Route::get('/success', [TicketController::class, 'success'])->name('success');
-    Route::get('/track', [TicketController::class, 'trackForm'])->name('track.form');
-    Route::post('/track', [TicketController::class, 'track'])->name('track');
-});
-
-// 2. SEpintu KMS Public
-Route::prefix('kms')->name('kms.public.')->group(function () {
-    Route::get('/', [KmsController::class, 'publicIndex'])->name('index');
-    Route::get('/article/{article:slug}', [KmsController::class, 'show'])->name('show');
-});
-
 /*
 |--------------------------------------------------------------------------
 | Auth Routes (Global - Akses untuk semua Role yang Login)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-
-    /* --- Tematik Module --- */
-    Route::prefix('tematik')->group(function () {
-        Route::get('/', [TematikController::class, 'index'])->name('tematik.index');
-        Route::get('/api/lokasi', [TematikController::class, 'getData'])->name('tematik.api.lokasi');
-        Route::get('/api/laporan', [TematikController::class, 'getLaporan'])->name('tematik.api.laporan');
-        Route::get('/api/info', [TematikController::class, 'getInfo'])->name('tematik.api.info');
-        Route::get('/api/users', [TematikController::class, 'getUsers'])->name('tematik.api.users');
-        Route::post('/api/lokasi', [TematikController::class, 'store'])->name('tematik.api.store');
-        Route::put('/api/lokasi/{id}', [TematikController::class, 'update'])->name('tematik.api.update');
-        Route::delete('/api/lokasi/{id}', [TematikController::class, 'destroy'])->name('tematik.api.destroy');
-    });
 
     /* --- Profile & Global --- */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -71,7 +38,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/super-access', [SuperAccessController::class, 'index'])->name('super.access.index');
     Route::get('/panduan', [DashboardController::class, 'panduanIndex'])->name('panduan.index');
     Route::get('/assignment/{id}/download-spt', [AssignmentController::class, 'downloadSPT'])->name('assignment.download-spt');
-    Route::post('/switch-module', [ModuleController::class, 'switchMode'])->name('module.switch');
     Route::get('/sso/check', [SSOController::class, 'check'])->name('sso.check');
 
     /* --- Notifications --- */
@@ -142,74 +108,6 @@ Route::middleware('auth')->group(function () {
                 Route::put('/{id}', [AnggotaController::class, 'anggotaUpdate'])->name('manajemen.anggota.update');
                 Route::delete('/{id}', [AnggotaController::class, 'anggotaDestroy'])->name('manajemen.anggota.destroy');
             });
-        });
-    });
-    
-    /* --- MODULE: HONORARIUM MITRA --- */
-    
-    // 1. Manajemen Master (Admin & Kepala)
-    Route::middleware('can:access-manajemen-user')->group(function () {
-        Route::prefix('manajemen')->group(function () {
-            // Master Mitra
-            Route::post('mitra/truncate', [MitraController::class, 'truncate'])->name('manajemen.mitra.truncate');
-            Route::resource('mitra', MitraController::class)->names('manajemen.mitra');
-            Route::post('mitra/import', [MitraController::class, 'import'])->name('manajemen.mitra.import');
-            
-            // Master Kegiatan
-            Route::resource('kegiatan', KegiatanController::class)->names('manajemen.kegiatan');
-        });
-    });
-
-    // 2. Penugasan & Progres (Katim)
-    Route::middleware('can:access-assignment')->group(function () {
-        Route::prefix('penugasan-mitra')->group(function () {
-            Route::get('/', [PenugasanController::class, 'index'])->name('penugasan-mitra.index');
-            Route::get('/create', [PenugasanController::class, 'create'])->name('penugasan-mitra.create');
-            Route::post('/store', [PenugasanController::class, 'store'])->name('penugasan-mitra.store');
-            Route::get('/{id}/edit', [PenugasanController::class, 'edit'])->name('penugasan-mitra.edit');
-            Route::put('/{id}', [PenugasanController::class, 'update'])->name('penugasan-mitra.update');
-            Route::delete('/{id}', [PenugasanController::class, 'destroy'])->name('penugasan-mitra.destroy');
-            
-            // AJAX Check Quota
-            Route::get('/check-quota', [PenugasanController::class, 'checkQuota'])->name('penugasan-mitra.check-quota');
-            Route::post('/{id}/update-status-tugas', [PenugasanController::class, 'updateStatusTugas'])->name('penugasan-mitra.update-status-tugas');
-            
-            // Generate SPK & BAST
-            Route::get('/{id}/spk', [PenugasanController::class, 'generateSPK'])->name('penugasan-mitra.spk');
-            Route::get('/{id}/bast', [PenugasanController::class, 'generateBAST'])->name('penugasan-mitra.bast');
-        });
-    });
-
-    // Rekap Honor (Akses Luas: Katim, Kepala, Admin, Subbag Umum)
-    Route::middleware('can:access-mitra-rekap')->group(function () {
-        Route::get('/penugasan-mitra/rekap-honor', [RekapController::class, 'rekapHonor'])->name('rekap-honor.index');
-        Route::get('/penugasan-mitra/rekap-honor/detail', [RekapController::class, 'getDetailHonor'])->name('rekap-honor.detail');
-    });
-
-    // 4. SEpintu Ticket Management (Admin/Pegawai)
-    Route::prefix('admin/tickets')->name('ticket.admin.')->group(function () {
-        Route::get('/', [TicketController::class, 'index'])->name('index');
-        Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
-        Route::post('/{ticket}/reply', [TicketController::class, 'storeReply'])->name('reply');
-        Route::patch('/{ticket}', [TicketController::class, 'update'])->name('update');
-        Route::post('/{ticket}/push', [TicketController::class, 'pushToKms'])->name('push');
-    });
-
-    // 5. SEpintu KMS Management (Admin/Pegawai)
-    Route::prefix('admin/kms')->name('kms.admin.')->group(function () {
-        Route::get('/', [KmsController::class, 'adminIndex'])->name('index');
-        Route::get('/{article}/edit', [KmsController::class, 'edit'])->name('edit');
-        Route::put('/{article}', [KmsController::class, 'update'])->name('update');
-        Route::delete('/{article}', [KmsController::class, 'destroy'])->name('destroy');
-    });
-
-    // 3. Gatekeeper & Realisasi (Tim Umum)
-    Route::middleware('can:access-absensi')->group(function () {
-        Route::prefix('honorarium')->group(function () {
-            Route::get('/verifikasi', [PenugasanController::class, 'gatekeeperIndex'])->name('honorarium.verifikasi');
-            Route::post('/verifikasi/{id}/status', [PenugasanController::class, 'updateStatusDokumen'])->name('honorarium.update-status');
-            Route::get('/pembayaran', [PenugasanController::class, 'paymentIndex'])->name('honorarium.pembayaran');
-            Route::post('/pembayaran/bulk-confirm', [PenugasanController::class, 'bulkConfirmPayment'])->name('honorarium.bulk-confirm');
         });
     });
 

@@ -38,20 +38,12 @@ class AppServiceProvider extends ServiceProvider
         // 2. GATE HAK AKSES (POV REVISI)
         Gate::define('is-admin', fn(User $user) => $user->role === 'Admin');
         Gate::define('is-not-admin', fn(User $user) => $user->role !== 'Admin');
-        Gate::define('can-manage-ticket', function(\App\Models\User $user, \App\Models\Ticket $ticket) {
-            if ($user->role === 'Admin' || $user->username === 'ketua.tim') return true;
-            return is_array($ticket->assigned_to_ids) && in_array($user->id, $ticket->assigned_to_ids);
-        });
         Gate::define('access-assignment', fn(User $user) => in_array($user->role, ['Kepala', 'Katim']));
         Gate::define('access-manajemen-user', fn(User $user) => in_array($user->role, ['Admin', 'Kepala']));
         Gate::define('is-pegawai', fn(User $user) => $user->role === 'Pegawai');
         
         Gate::define('access-absensi', function (User $user) {
             return $user->team && $user->team->nama_tim === 'Subbagian Umum';
-        });
-
-        Gate::define('access-mitra-rekap', function (User $user) {
-            return in_array($user->role, ['Kepala', 'Katim', 'Admin']) || ($user->team && $user->team->nama_tim === 'Subbagian Umum');
         });
 
 
